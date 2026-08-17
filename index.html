@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meu Crochê — Contador de Carreiras</title>
+<style>
+:root{
+  --bg:#f7f3f0; --card:#fff; --text:#2f2926; --muted:#7a6f69; --line:#e8dfda;
+  --accent:#9a5c70; --accent2:#ead6dd; --ok:#5f8d72; --danger:#b65d5d;
+  --shadow:0 8px 30px rgba(62,42,35,.08); --radius:18px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0}
+.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+aside{position:relative;background:#fff;border-right:1px solid var(--line);padding:22px 16px;position:sticky;top:0;height:100vh}
+.brand{font-weight:800;font-size:22px;margin:4px 8px 24px}
+.brand span{color:var(--accent)}
+.nav button{display:flex;width:100%;padding:12px 14px;margin:5px 0;border-radius:12px;background:transparent;text-align:left;color:var(--text)}
+.nav button.active,.nav button:hover{background:var(--accent2);color:var(--accent)}
+.side-bottom{position:absolute;bottom:18px;left:16px;right:16px}
+main{padding:28px;max-width:1400px;width:100%;margin:auto}
+.top{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:22px}
+h1{font-size:30px;margin:0 0 5px}.subtitle{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.span12{grid-column:span 12}.span8{grid-column:span 8}.span6{grid-column:span 6}.span4{grid-column:span 4}.span3{grid-column:span 3}
+.btn{background:var(--accent);color:white;padding:11px 16px;border-radius:12px;font-weight:700}
+.btn.secondary{background:#f0e9e5;color:var(--text)} .btn.ghost{background:transparent;color:var(--accent)}
+.btn.danger{background:#f6dddd;color:var(--danger)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:10px 12px;background:#fff;color:var(--text)}
+textarea{min-height:110px;resize:vertical}
+label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.kpi{font-size:42px;font-weight:800;line-height:1;margin:8px 0}
+.small{font-size:13px;color:var(--muted)}
+.progress{height:12px;background:#eee5e1;border-radius:99px;overflow:hidden}
+.progress>div{height:100%;background:var(--accent);transition:.2s;width:0}
+.counter{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.counter-main{text-align:center;flex:1}
+.counter-value{font-size:78px;font-weight:850;line-height:1}
+.counter-label{color:var(--muted);font-weight:700}
+.circle-btn{width:64px;height:64px;border-radius:50%;font-size:30px;background:#f0e9e5;color:var(--text)}
+.circle-btn.plus{background:var(--accent);color:white}
+.section-item,.session-item{padding:12px 0;border-bottom:1px solid var(--line)}
+.section-item:last-child,.session-item:last-child{border-bottom:0}
+.badge{display:inline-block;padding:4px 8px;border-radius:99px;background:var(--accent2);color:var(--accent);font-size:12px;font-weight:700}
+.pattern-wrap{position:relative;overflow:auto;max-height:620px;border:1px solid var(--line);border-radius:14px;background:#fafafa}
+.pattern-stage{position:relative;display:inline-block;min-width:100%;line-height:0}
+.pattern-stage canvas{display:block;max-width:none}
+.pattern-stage img{display:block;max-width:100%;height:auto}
+.row-highlight{position:absolute;left:0;right:0;display:none;background:rgba(24,119,242,.22);border-top:2px solid #1877f2;border-bottom:2px solid #1877f2;box-shadow:0 0 0 1px rgba(24,119,242,.12) inset;pointer-events:none;z-index:5;transition:top .16s ease,height .16s ease}
+.row-highlight-label{position:absolute;left:0;top:50%;transform:translateY(-50%);background:#1877f2;color:#fff;padding:4px 9px;border-radius:0 7px 7px 0;font-size:12px;font-weight:800;line-height:1.2;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.hidden{display:none!important}
+.project-card{cursor:pointer;transition:.15s}.project-card:hover{transform:translateY(-2px)}
+.empty{text-align:center;padding:45px 20px;color:var(--muted)}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line)}
+.toast{position:fixed;right:22px;bottom:22px;background:#2f2926;color:white;padding:12px 16px;border-radius:12px;box-shadow:var(--shadow);z-index:50}
+.modal{position:fixed;inset:0;background:rgba(30,20,16,.45);display:flex;align-items:center;justify-content:center;padding:20px;z-index:40}
+.modal-box{background:#fff;border-radius:20px;max-width:620px;width:100%;padding:22px;box-shadow:0 20px 70px rgba(0,0,0,.25)}
+.shortcut{display:inline-flex;min-width:26px;justify-content:center;padding:3px 7px;border:1px solid var(--line);border-radius:6px;background:#faf7f5;font-size:12px}
+.dark{--bg:#171414;--card:#211d1b;--text:#f5efeb;--muted:#b7aaa4;--line:#382f2b;--accent:#d4879e;--accent2:#3d2930;--shadow:0 8px 30px rgba(0,0,0,.22)}
+.dark input,.dark select,.dark textarea{background:#191615;color:var(--text);border-color:var(--line)}
+.dark aside{position:relative;background:#211d1b;border-color:var(--line)}
+.dark .btn.secondary{background:#352d2a;color:var(--text)}
+.dark .circle-btn{background:#352d2a;color:var(--text)}
+.dark .progress{background:#382f2b}
+
+/* V6 */
+body.work-mode main{max-width:none;padding:16px 18px}body.work-mode #page-work>.top{margin-bottom:12px}.work-shell{display:grid;grid-template-columns:270px minmax(0,1fr);gap:12px;align-items:start}.work-rail{display:flex;flex-direction:column;gap:10px;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;padding-right:2px}.compact-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px;box-shadow:var(--shadow)}.compact-card h3{font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}.mini-counter{text-align:center;padding:4px 0 10px}.mini-counter strong{font-size:40px;line-height:1}.mini-counter span{color:var(--muted);font-weight:700}.nav-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.nav-grid .btn{padding:9px 4px;border-radius:9px}.jump-row{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:7px}.jump-row .btn{padding:9px 12px}.mark-action{width:100%;margin-top:7px}.color-row{display:grid;grid-template-columns:1fr 48px;gap:8px;align-items:center}.color-row input[type=color]{height:38px;padding:2px;border-radius:9px}.switch-row{display:flex;gap:8px;align-items:center;font-size:13px}.switch-row input{width:auto}.direction-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.direction-grid .btn{padding:9px 6px;font-size:12px}.viewer-card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);min-width:0}.viewer-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}.viewer-file{font-size:13px;font-weight:750;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%}.viewer-actions{display:flex;gap:6px;align-items:center}.viewer-actions .btn{padding:8px 10px;border-radius:9px;font-size:12px}.viewer-card .pattern-wrap{max-height:none;height:calc(100vh - 215px);min-height:540px;border:0;border-radius:0;background:#fafafa}.viewer-card .pattern-stage{min-width:100%}.viewer-card .pattern-stage img{max-width:none}.viewer-footer{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;border-top:1px solid var(--line);flex-wrap:wrap}.detect-inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.detect-inline .btn{padding:8px 11px;font-size:12px}.row-highlight{z-index:8}.completed-rows-layer{position:absolute;inset:0;pointer-events:none;z-index:6}.completed-row-band{position:absolute;left:0;right:0;border-top:1px solid rgba(255,255,255,.12);border-bottom:1px solid rgba(0,0,0,.08)}.completed-row-label{position:absolute;left:0;top:50%;transform:translateY(-50%);padding:2px 6px;border-radius:0 5px 5px 0;color:white;font-size:10px;font-weight:800;line-height:1.15;text-shadow:0 1px 2px rgba(0,0,0,.45)}.completed-chip{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--muted)}.dot{width:10px;height:10px;border-radius:50%;display:inline-block}.extra-tools{grid-column:1/-1;margin-top:12px}.extra-tools details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px}.extra-tools summary{cursor:pointer;font-weight:750}.extra-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.viewer-card:fullscreen{background:var(--bg)}.viewer-card:fullscreen .pattern-wrap{height:calc(100vh - 104px);min-height:0}.viewer-card:fullscreen .viewer-toolbar,.viewer-card:fullscreen .viewer-footer{background:var(--card)}body.viewer-focus .app{grid-template-columns:1fr}body.viewer-focus aside{display:none}body.viewer-focus main{max-width:none;padding:8px}body.viewer-focus #page-work>.top{display:none}body.viewer-focus .work-shell{grid-template-columns:minmax(0,1fr)}body.viewer-focus .viewer-card .pattern-wrap{height:calc(100vh - 105px);min-height:0}@media(max-width:1100px){.work-shell{grid-template-columns:220px minmax(0,1fr)}.viewer-card .pattern-wrap{height:70vh;min-height:480px}}@media(max-width:760px){.work-shell{grid-template-columns:1fr}.work-rail{position:static;max-height:none}.viewer-card .pattern-wrap{height:65vh;min-height:420px}.extra-grid{grid-template-columns:1fr}.viewer-file{max-width:100%}}
+@media(max-width:900px){
+ .app{grid-template-columns:1fr} aside{height:auto;position:relative;border-right:0;border-bottom:1px solid var(--line)}
+ .side-bottom{position:static;margin-top:10px}.nav{display:flex;overflow:auto}.nav button{white-space:nowrap}
+ main{padding:18px}.span8,.span6,.span4,.span3{grid-column:span 12}
+}
+
+.sidebar-toggle{
+  position:absolute; top:18px; right:12px; width:34px; height:34px; border-radius:10px;
+  background:var(--accent2); color:var(--text); display:flex; align-items:center; justify-content:center;
+  font-weight:800; z-index:5;
+}
+.app.sidebar-collapsed{grid-template-columns:78px 1fr}
+.app.sidebar-collapsed aside{padding:18px 10px}
+.app.sidebar-collapsed .brand{font-size:0;margin:4px 0 24px;text-align:center}
+.app.sidebar-collapsed .brand:before{content:"🧶";font-size:24px}
+.app.sidebar-collapsed .nav button{font-size:0;justify-content:center;padding:12px 8px}
+.app.sidebar-collapsed .nav button{overflow:hidden}
+.app.sidebar-collapsed .nav button[data-icon]::before{content:attr(data-icon);font-size:20px}
+.app.sidebar-collapsed .side-bottom .btn{font-size:0}
+.app.sidebar-collapsed .side-bottom .btn:before{content:"🌙";font-size:20px}
+.app.sidebar-collapsed .side-bottom .small{display:none}
+.app.sidebar-collapsed .sidebar-toggle{right:50%;transform:translateX(50%)}
+@media(max-width:900px){
+ .app.sidebar-collapsed{grid-template-columns:1fr}
+ .app.sidebar-collapsed aside{padding:12px}
+ .app.sidebar-collapsed .brand{display:none}
+ .app.sidebar-collapsed .nav{display:flex}
+}
+
+
+.marker,.completed-overlay{transition:top .12s ease,height .12s ease,background-color .12s ease}
+
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#pdfPatternWrap{scroll-behavior:auto;overflow-anchor:none}
+.pattern-wrap{overflow-anchor:none}
+
+/* === PWA / CELULAR === */
+:root{--mobile-bar-h:68px}
+html,body{overscroll-behavior:none}
+body{touch-action:manipulation}
+button,.btn{min-height:44px}
+.pattern-wrap{touch-action:pan-x pan-y pinch-zoom}
+.mobile-bottom-bar{display:none}
+.pwa-install-banner{display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:1000;
+ background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:16px;padding:12px}
+.pwa-install-banner .row{justify-content:space-between}
+@media(max-width:900px){
+ body{padding-bottom:var(--mobile-bar-h)}
+ .app{display:block;min-height:100vh}
+ aside{position:sticky;top:0;z-index:20;height:auto;padding:8px 10px;border-right:0;border-bottom:1px solid var(--line)}
+ .brand{margin:0 44px 8px 4px;font-size:18px}
+ .nav{display:flex;gap:6px;overflow-x:auto}
+ .nav button{flex:0 0 auto;padding:9px 12px;margin:0}
+ .side-bottom{display:none}
+ main{padding:10px;max-width:none}
+ .top{margin-bottom:10px;align-items:flex-start}
+ h1{font-size:22px}
+ .grid{gap:10px}
+ .card{padding:12px;border-radius:14px}
+ .counter-value{font-size:54px}
+ .circle-btn{width:54px;height:54px}
+ .pattern-wrap{max-height:72vh;border-radius:12px}
+ #pdfCanvas{max-width:none}
+ .mobile-bottom-bar{
+   position:fixed;left:0;right:0;bottom:0;height:var(--mobile-bar-h);z-index:999;
+   display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 12px;
+   background:var(--card);border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.12)
+ }
+ .mobile-bottom-bar button{flex:1;max-width:150px;font-size:20px;font-weight:800}
+ .app.sidebar-collapsed{display:block}
+ .app.sidebar-collapsed aside{padding:8px 10px}
+ .app.sidebar-collapsed .brand{display:none}
+ .app.sidebar-collapsed .nav{display:flex}
+ .sidebar-toggle{top:8px;right:8px}
+}
+
+</style>
+
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#211d1b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Meu Crochê">
+<link rel="apple-touch-icon" href="./icon-192.png">
+
+</head>
+<body>
+<div class="app" id="appRoot">
+<aside><button id="sidebarToggle" class="sidebar-toggle" onclick="toggleSidebar()" title="Recolher/expandir lateral">☰</button>
+  <div class="brand">🧶 Meu <span>Crochê</span></div>
+  <div class="nav">
+    <button data-icon="🏠" id="nav-home" class="active" onclick="showPage('home')">🏠 Projetos</button>
+    <button data-icon="🧵" id="nav-work" onclick="showPage('work')">🧵 Projeto atual</button>
+    <button data-icon="🛠️" id="nav-tools" onclick="showPage('tools')">🛠️ Ferramentas</button>
+  </div>
+  <div class="side-bottom">
+    <button class="btn secondary" style="width:100%" onclick="toggleDark()">🌙 Aparência</button>
+    <div class="small" style="margin:10px 5px">Tudo fica salvo neste navegador.<br>Versão 6.2.2 · concluídas + visual</div>
+  </div>
+</aside>
+
+<main>
+<section id="page-home">
+  <div class="top">
+    <div><h1>Meus projetos</h1><div class="subtitle">Organize carreiras, tempo e partes sem se perder.</div></div>
+    <button class="btn" onclick="openProjectModal()">＋ Novo projeto</button>
+  </div>
+  <div id="project-list" class="grid"></div>
+</section>
+
+<section id="page-work" class="hidden">
+  <div class="top">
+    <div><h1 id="work-title">Projeto</h1><div id="work-subtitle" class="subtitle"></div></div>
+    <div class="row">
+      <button class="btn secondary" onclick="showPage('home')">← Projetos</button>
+      <button class="btn secondary" onclick="exportData()">💾 Backup</button><label class="btn secondary" style="cursor:pointer">📥 Restaurar<input type="file" accept="application/json,.json" hidden onchange="importBackup(this)"></label>
+    </div>
+  </div>
+  <div id="work-content"></div>
+</section>
+
+<section id="page-tools" class="hidden">
+  <div class="top"><div><h1>Ferramentas</h1><div class="subtitle">Pequenos cálculos para facilitar o trabalho.</div></div></div>
+  <div class="grid">
+    <div class="card span4">
+      <h3>📏 Regra de três</h3>
+      <div class="formgrid">
+        <div><label>A</label><input id="calcA" type="number" value="10"></div>
+        <div><label>B</label><input id="calcB" type="number" value="20"></div>
+        <div><label>C</label><input id="calcC" type="number" value="5"></div>
+        <div><label>Resultado</label><input id="calcD" readonly></div>
+      </div>
+      <button class="btn" style="margin-top:12px" onclick="rule3()">Calcular</button>
+    </div>
+    <div class="card span4">
+      <h3>🧶 Conversor de unidades</h3>
+      <div><label>Centímetros → metros</label><input id="cm" type="number" oninput="document.getElementById('m').value=(Number(this.value||0)/100).toFixed(2)"></div>
+      <div style="margin-top:10px"><label>Metros</label><input id="m" readonly></div>
+    </div>
+    <div class="card span4">
+      <h3>⏱️ Estimativa de tempo</h3>
+      <div><label>Carreiras restantes</label><input id="etRows" type="number" value="20"></div>
+      <div><label>Minutos por carreira</label><input id="etMin" type="number" value="5"></div>
+      <button class="btn" style="margin-top:12px" onclick="estimate()">Estimar</button>
+      <div id="etOut" class="kpi" style="font-size:30px"></div>
+    </div>
+  </div>
+</section>
+</main>
+</div>
+
+<div id="modal" class="modal hidden">
+ <div class="modal-box">
+   <div class="top"><h2 style="margin:0">Novo projeto</h2><button class="btn secondary" onclick="closeModal()">✕</button></div>
+   <div class="formgrid">
+     <div><label>Nome do projeto</label><input id="pName" placeholder="Ex.: Toalha de mesa"></div>
+     <div><label>Tipo</label><select id="pType"><option>Filé crochê</option><option>Crochê</option><option>Tricô</option><option>Outro</option></select></div>
+     <div><label>Total de carreiras</label><input id="pRows" type="number" min="0" value="0"></div>
+     <div><label>Meta de pontos por carreira (opcional)</label><input id="pStitches" type="number" min="0" value="0"></div>
+   </div>
+   <div style="margin-top:14px"><label>Observações</label><textarea id="pNotes" placeholder="Fio, agulha, tamanho, observações..."></textarea></div>
+   <div class="row" style="justify-content:flex-end;margin-top:15px"><button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn" onclick="createProject()">Criar projeto</button></div>
+ </div>
+</div>
+<div id="toast" class="toast hidden"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+const KEY='meuCrocheApp_v1';
+let data; try{data=JSON.parse(localStorage.getItem(KEY)||'{"projects":[],"dark":false}')}catch(e){data={projects:[],dark:false}};
+let currentId=null, timerHandle=null, voiceRecognition=null;
+let pdfPageCache={};
+let detectedGridCache={};
+
+function save(){localStorage.setItem(KEY,JSON.stringify(data));}
+function applySidebarState(){
+ const app=document.getElementById('appRoot');
+ const btn=document.getElementById('sidebarToggle');
+ if(!app)return;
+ app.classList.toggle('sidebar-collapsed',!!data.sidebarCollapsed);
+ if(btn)btn.textContent=data.sidebarCollapsed?'→':'☰';
+}
+function toggleSidebar(){
+ data.sidebarCollapsed=!data.sidebarCollapsed;
+ save();
+ applySidebarState();
+}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),1800)}
+function showPage(p){
+ ['home','work','tools'].forEach(x=>document.getElementById('page-'+x).classList.toggle('hidden',x!==p));
+ ['home','work','tools'].forEach(x=>document.getElementById('nav-'+x).classList.toggle('active',x===p));
+ document.body.classList.toggle('work-mode',p==='work');
+ if(p==='home') renderProjects(); if(p==='work') renderWork();
+}
+function toggleDark(){data.dark=!data.dark;document.body.classList.toggle('dark',data.dark);save()}
+document.body.classList.toggle('dark',!!data.dark);
+
+function openProjectModal(){document.getElementById('modal').classList.remove('hidden');setTimeout(()=>document.getElementById('pName').focus(),50)}
+function closeModal(){document.getElementById('modal').classList.add('hidden')}
+function createProject(){
+ const name=document.getElementById('pName').value.trim()||'Projeto sem nome';
+ const rows=Number(document.getElementById('pRows').value)||0;
+ const stitches=Number(document.getElementById('pStitches').value)||0;
+ const p={id:uid(),name,type:document.getElementById('pType').value,totalRows:rows,row:0,totalStitches:stitches,stitches:0,
+   notes:document.getElementById('pNotes').value,direction:'bottom-up',completedRows:{},completedColor:'#2cab5f',autoMarkCompleted:true,currentRowColor:'#1877f2',seconds:0,running:false,lastStart:null,sessions:[],sections:[],
+   counters:[{id:uid(),name:'Carreiras',value:0,target:rows,step:1,autoEvery:0,autoTarget:0},
+             {id:uid(),name:'Pontos',value:0,target:stitches,step:1,autoEvery:0,autoTarget:0}],
+   reminders:[],pattern:null,created:new Date().toISOString()};
+ data.projects.unshift(p);save();closeModal();currentId=p.id;showPage('work');toast('Projeto criado!')}
+function project(){return normalizeProject(data.projects.find(p=>p.id===currentId))}
+function normalizeProject(p){
+ if(!p)return p;
+ if(!Array.isArray(p.completedRows))p.completedRows=[];
+ if(typeof p.autoCompletePrevious!=='boolean')p.autoCompletePrevious=true;
+ if(!p.completedColor)p.completedColor='#2fb36f';
+ if(!p.direction)p.direction='bottom-up';
+ if(!Array.isArray(p.counters))p.counters=[];
+ if(!Array.isArray(p.reminders))p.reminders=[];
+ if(!Array.isArray(p.sections))p.sections=[];
+ return p;
+}
+
+function getDirection(p){
+ if(!p.direction) p.direction='bottom-up';
+ return p.direction;
+}
+function ensureProjectUiState(p){if(!p)return;if(!p.completedRows||Array.isArray(p.completedRows))p.completedRows={};if(!p.completedColor)p.completedColor='#2cab5f';if(typeof p.autoMarkCompleted!=='boolean')p.autoMarkCompleted=true;if(!p.currentRowColor)p.currentRowColor='#1877f2';}
+function completedCount(p){ensureProjectUiState(p);return Object.keys(p.completedRows).filter(k=>p.completedRows[k]).length}
+function setCompletedColor(color){const p=project();if(!p)return;ensureProjectUiState(p);p.completedColor=color||'#2cab5f';save();renderCompletedRows()}
+function recolorCompleted(){const p=project();if(!p)return;ensureProjectUiState(p);Object.keys(p.completedRows).forEach(k=>p.completedRows[k]=p.completedColor);save();renderCompletedRows();toast('Cor aplicada às carreiras concluídas')}
+function setAutoMarkCompleted(v){const p=project();if(!p)return;ensureProjectUiState(p);p.autoMarkCompleted=!!v;save()}
+function toggleCompletedRow(row){const p=project();if(!p)return;ensureProjectUiState(p);row=Math.max(1,Math.min(Number(p.totalRows||row),Number(row)||1));const key=String(row);if(p.completedRows[key])delete p.completedRows[key];else p.completedRows[key]=p.completedColor;save();renderWork();toast(p.completedRows[key]?'Carreira '+row+' concluída':'Carreira '+row+' reaberta')}
+function markThroughCurrent(){const p=project();if(!p)return;ensureProjectUiState(p);const end=Math.max(0,Number(p.row)||0);for(let r=1;r<=end;r++)p.completedRows[String(r)]=p.completedRows[String(r)]||p.completedColor;save();renderWork();toast('Carreiras 1–'+end+' marcadas como concluídas')}
+function clearCompleted(){const p=project();if(!p||!confirm('Remover todas as marcações de concluído?'))return;ensureProjectUiState(p);p.completedRows={};save();rerenderPreserveViewer()}
+
+function setDirection(dir){
+ const p=project(); if(!p)return;
+ p.direction=dir==='top-down'?'top-down':'bottom-up';
+ save(); rerenderPreserveViewer();
+ toast(p.direction==='bottom-up'?'Carreiras: de baixo para cima':'Carreiras: de cima para baixo');
+}
+
+function renderProjects(){
+ const el=document.getElementById('project-list');
+ if(!data.projects.length){el.innerHTML='<div class="card span12 empty"><div style="font-size:48px">🧶</div><h2>Nenhum projeto ainda</h2><p>Crie seu primeiro projeto e nunca mais perca a carreira.</p><button class="btn" onclick="openProjectModal()">＋ Criar projeto</button></div>';return}
+ el.innerHTML=data.projects.map(p=>{
+   const pct=p.totalRows?Math.min(100,p.row/p.totalRows*100):0;
+   return `<div class="card project-card span4" onclick="currentId='${p.id}';showPage('work')">
+    <div class="row" style="justify-content:space-between"><span class="badge">${esc(p.type)}</span><span class="small">${Math.round(pct)}%</span></div>
+    <h2>${esc(p.name)}</h2>
+    <div class="small">Carreira ${p.row}${p.totalRows?' de '+p.totalRows:''}</div>
+    <div class="progress" style="margin-top:12px"><div style="width:${pct}%"></div></div>
+    <div class="small" style="margin-top:10px">⏱️ ${formatTime(p.seconds)} · 🧵 ${p.stitches} pontos</div>
+   </div>`}).join('');
+}
+function formatTime(s){s=Math.max(0,Math.floor(s||0));let h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;return h?`${h}h ${String(m).padStart(2,'0')}m`:m?`${m}m ${String(sec).padStart(2,'0')}s`:`${sec}s`}
+function addTime(p){
+ if(!p.running)return;
+ const now=Date.now(), diff=Math.floor((now-p.lastStart)/1000);p.seconds+=Math.max(0,diff);p.lastStart=now;
+}
+function startTimer(){let p=project();if(!p)return;p.running=true;p.lastStart=Date.now();save();renderWork();clearInterval(timerHandle);timerHandle=setInterval(()=>{addTime(p);updateLive();},1000);toast('Cronômetro iniciado')}
+function pauseTimer(){let p=project();if(!p)return;addTime(p);p.running=false;p.sessions.push({at:new Date().toISOString(),seconds:Math.floor((p.lastStart?0:0)+0)});save();clearInterval(timerHandle);renderWork();toast('Cronômetro pausado')}
+function resetTimer(){let p=project();if(!p)return;if(!confirm('Zerar o tempo deste projeto?'))return;p.seconds=0;p.running=false;p.lastStart=null;p.sessions=[];save();clearInterval(timerHandle);renderWork()}
+function updateLive(){const p=project();if(!p)return;addTime(p);const e=document.getElementById('liveTime');if(e)e.textContent=formatTime(p.seconds);const speed=document.getElementById('speed');if(speed&&p.row) speed.textContent=(p.seconds/60/p.row).toFixed(1)+' min/carreira';save()}
+
+function rerenderPreserveViewer(){
+ const pos=captureViewerScroll();
+ renderWork();
+ requestAnimationFrame(()=>restoreViewerScroll(pos));
+}
+function captureViewerScroll(){
+ const wrap=document.getElementById('pdfPatternWrap') || document.querySelector('.pattern-wrap');
+ if(!wrap)return null;
+ return {top:wrap.scrollTop,left:wrap.scrollLeft};
+}
+function restoreViewerScroll(pos){
+ if(!pos)return;
+ const wrap=document.getElementById('pdfPatternWrap') || document.querySelector('.pattern-wrap');
+ if(!wrap)return;
+ wrap.scrollTop=pos.top;
+ wrap.scrollLeft=pos.left;
+}
+function refreshProgressOnly(){
+ const p=project(); if(!p)return;
+ const main=document.getElementById('mainRow');
+ if(main)main.textContent=p.row;
+ const rowText=document.getElementById('compactRowValue');
+ if(rowText)rowText.textContent=p.row;
+ const pct=p.totalRows?Math.min(100,p.row/p.totalRows*100):0;
+ document.querySelectorAll('[data-progress-fill]').forEach(el=>el.style.width=pct+'%');
+ document.querySelectorAll('[data-progress-text]').forEach(el=>el.textContent=Math.round(pct)+'%');
+ // If V6 completed overlays exist, rebuild just overlay layer when possible.
+ if(typeof renderCompletedOverlays==='function') renderCompletedOverlays();
+ if(typeof positionPatternMarker==='function') positionPatternMarker();
+}
+
+function changeRow(delta){
+ const p=project(); if(!p)return;
+ const pos=captureViewerScroll();
+ const oldRow=Number(p.row||0);
+ const maxRow=Math.max(0,Number(p.totalRows||p.detectedRows||0));
+ let next=Math.max(0,oldRow+Number(delta||0));
+ if(maxRow>0) next=Math.min(maxRow,next);
+
+ // Auto-complete the row being left when advancing, if enabled.
+ if(next>oldRow && p.autoCompletePrevious){
+   if(!Array.isArray(p.completedRows))p.completedRows=[];
+   if(oldRow>0 && !p.completedRows.some(x => (typeof x==='object'?x.row:x)===oldRow)){
+     p.completedRows.push({row:oldRow,color:p.completedColor||'#2fb36f'});
+   }
+ }
+
+ p.row=next;
+
+ const rowCounter=(p.counters||[]).find(c=>c.name==='Carreiras');
+ if(rowCounter) rowCounter.value=next;
+
+ const reminder=(p.reminders||[]).find(x=>Number(x.row)===next);
+ if(reminder && next>oldRow) toast('🔔 '+reminder.text);
+
+ save();
+
+ // Full rerender is safer than partial DOM patching, but restore scroll after.
+ renderWork();
+ requestAnimationFrame(()=>{
+   restoreViewerScroll(pos);
+   requestAnimationFrame(()=>restoreViewerScroll(pos));
+ });
+}
+function addCounter(){const p=project();const name=prompt('Nome do contador (ex.: Repetições, aumentos, motivos):');if(!name)return;p.counters.push({id:uid(),name,value:0,target:0,step:1,autoEvery:0});save();renderWork()}
+function removeCounter(id){const p=project();if(p.counters.length<=1)return; p.counters=p.counters.filter(c=>c.id!==id);save();renderWork()}
+function editCounter(id,field,val){const p=project(),c=p.counters.find(x=>x.id===id);if(!c)return;c[field]=Number(val)||0;if(c.name==='Carreiras'){p.totalRows=c.target||p.totalRows}save()}
+function addSection(){
+ const p=project();const name=prompt('Nome da parte (ex.: Corpo, Barra, Motivo):');if(!name)return;
+ const start=Number(prompt('Começa na carreira:',p.row+1))||p.row+1;
+ const end=Number(prompt('Termina na carreira:',start+10))||start+10;
+ p.sections.push({id:uid(),name,start,end,note:''});save();renderWork()
+}
+function sectionDone(id){const p=project(),s=p.sections.find(x=>x.id===id);if(s)s.done=!s.done;save();renderWork()}
+function addReminder(){const p=project();const row=Number(prompt('Em qual carreira quer um lembrete?',p.row+1));if(!row)return;const text=prompt('O que lembrar?','Trocar de cor / fazer aumento');if(!text)return;p.reminders.push({row,text});save();renderWork()}
+function deleteProject(){if(!confirm('Excluir este projeto?'))return;data.projects=data.projects.filter(p=>p.id!==currentId);currentId=null;save();showPage('home')}
+function updateNotes(v){const p=project();p.notes=v;save()}
+function uploadPattern(input){
+ const file=input.files[0];if(!file)return;
+ const isPdf=file.type==='application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+ const reader=new FileReader();
+ reader.onload=()=>{
+   const p=project();
+   p.pattern={name:file.name,type:isPdf?'application/pdf':file.type,data:reader.result};
+   p.detectedRows=null;
+   save();renderWork();
+   toast(isPdf?'PDF adicionado — clique em DETECTAR':'Padrão adicionado');
+ };
+ reader.readAsDataURL(file)
+}
+function removePattern(){const p=project();p.pattern=null;save();renderWork()}
+function renderPattern(p){
+ if(!p.pattern)return `<div class="empty">Nenhum padrão adicionado.<br><small>Você pode colocar uma imagem ou PDF da receita aqui.</small></div>`;
+ const completed=`<div class="completed-rows-layer" id="completedRowsLayer"></div>`;
+ const highlight=`<div class="row-highlight" id="rowHighlight"><span class="row-highlight-label" id="rowHighlightLabel"></span></div>`;
+ if(isPdfPattern(p)){
+   return `<div class="pattern-wrap" id="pdfPatternWrap">
+      <div class="pattern-stage" id="patternStage">
+        <canvas id="pdfCanvas"></canvas>
+        ${completed}
+        ${highlight}
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px;justify-content:center">
+      <button id="pdfPrevBtn" class="btn secondary" onclick="pdfPrevPage()">◀ Página anterior</button>
+      <span id="pdfPageInfo" class="small">Página 1</span>
+      <button id="pdfNextBtn" class="btn secondary" onclick="pdfNextPage()">Próxima página ▶</button>
+    </div>`;
+ }
+ return `<div class="pattern-wrap"><div class="pattern-stage" id="patternStage"><img id="patternImg" src="${p.pattern.data}" alt="Padrão" onload="positionRowHighlight()">${completed}${highlight}</div></div>`;
+}
+function isPdfPattern(p){
+ return !!(p && p.pattern && (
+   p.pattern.type==='application/pdf' ||
+   String(p.pattern.name||'').toLowerCase().endsWith('.pdf')
+ ));
+}
+function renderWork(){const p=project();if(!p){showPage('home');return}ensureProjectUiState(p);document.getElementById('work-title').textContent=p.name;document.getElementById('work-subtitle').textContent=`${p.type} · criado em ${new Date(p.created).toLocaleDateString('pt-BR')}`;const pct=p.totalRows?Math.min(100,(completedCount(p)/p.totalRows)*100):0,isDone=!!p.completedRows[String(p.row)],patternName=p.pattern?.name||'Nenhuma receita carregada';document.getElementById('work-content').innerHTML=`<div class="work-shell"><aside class="work-rail"><div class="compact-card"><h3>Carreira atual</h3><div class="mini-counter"><strong>${p.row||0}</strong> <span>${p.totalRows?' / '+p.totalRows:''}</span></div><div class="nav-grid"><button class="btn secondary" onclick="changeRow(-10)">−10</button><button class="btn secondary" onclick="changeRow(-1)">−</button><button class="btn" onclick="changeRow(1)">＋</button><button class="btn secondary" onclick="changeRow(10)">+10</button></div><div class="jump-row"><input id="jumpRow" type="number" min="1" max="${p.totalRows||9999}" placeholder="Ir para..." onkeydown="if(event.key==='Enter')goToRow()"><button class="btn secondary" onclick="goToRow()">Ir</button></div></div><div class="compact-card"><h3>Marcações</h3><button class="btn ${isDone?'secondary':''} mark-action" onclick="toggleCompletedRow(${p.row||1})">${isDone?'↩ Reabrir atual':'✓ Concluir atual'}</button><button class="btn secondary mark-action" onclick="markThroughCurrent()">✓ Marcar até a atual</button><div class="switch-row" style="margin-top:10px"><input id="autoMark" type="checkbox" ${p.autoMarkCompleted?'checked':''} onchange="setAutoMarkCompleted(this.checked)"><label for="autoMark" style="margin:0;color:inherit">Ao avançar, concluir a anterior</label></div><div class="color-row" style="margin-top:10px"><div><div class="small">Cor das próximas concluídas</div><span class="completed-chip"><span class="dot" style="background:${p.completedColor}"></span>${completedCount(p)} concluídas</span></div><input type="color" value="${p.completedColor}" onchange="setCompletedColor(this.value)"></div><div class="row" style="margin-top:8px"><button class="btn secondary" style="flex:1;padding:8px" onclick="recolorCompleted()">Aplicar a todas</button><button class="btn ghost" style="padding:8px" onclick="clearCompleted()">Limpar</button></div></div><div class="compact-card"><h3>Sentido</h3><div class="direction-grid"><button class="btn ${getDirection(p)==='bottom-up'?'':'secondary'}" onclick="setDirection('bottom-up')">⬆ Baixo → cima</button><button class="btn ${getDirection(p)==='top-down'?'':'secondary'}" onclick="setDirection('top-down')">⬇ Cima → baixo</button></div></div><div class="compact-card"><h3>Progresso</h3><div class="progress"><div data-progress-fill style="width:${pct}%"></div></div><div class="small" style="margin-top:7px">${completedCount(p)} de ${p.totalRows||'?'} concluídas · ${Math.round(pct)}%</div></div><div class="compact-card"><h3>Atalhos</h3><div class="small"><span class="shortcut">Espaço</span> próxima · <span class="shortcut">Z</span> voltar<br><span class="shortcut">T</span> tempo</div></div></aside><section class="viewer-card" id="viewerPanel"><div class="viewer-toolbar"><div class="viewer-file">📄 ${esc(patternName)}</div><div class="viewer-actions"><button id="focusBtn" class="btn secondary" onclick="toggleViewerFocus()">⛶ Modo foco</button><button class="btn secondary" onclick="toggleViewerFullscreen()">⛶ Tela cheia</button><label class="btn secondary" style="cursor:pointer">Trocar arquivo<input type="file" accept="image/*,.pdf,application/pdf" hidden onchange="uploadPattern(this)"></label>${p.pattern?'<button class="btn danger" onclick="removePattern()">Remover</button>':''}</div></div>${renderPattern(p)}<div class="viewer-footer"><div class="detect-inline">${isPdfPattern(p)?`<strong style="font-size:12px">Detecção:</strong><span class="small">${p.detectedRows?'✅ '+p.detectedRows+' carreiras':'não realizada'}</span><button class="btn" onclick="detectPdfRows()">🔎 ${p.detectedRows?'Detectar novamente':'Detectar carreiras'}</button>${p.detectedRows?`<input type="number" min="1" value="${p.detectedRows}" style="width:82px;padding:7px" onchange="setDetectedRows(this.value)">`:''}`:''}</div><div class="completed-chip"><span class="dot" style="background:${p.currentRowColor}"></span>Atual <span class="dot" style="background:${p.completedColor};margin-left:8px"></span>Concluídas</div></div></section><div class="extra-tools"><details><summary>Mais ferramentas do projeto</summary><div class="extra-grid"><div class="compact-card"><h3>⏱ Tempo</h3><div id="liveTime" style="font-size:24px;font-weight:800">${formatTime(p.seconds)}</div><div class="row" style="margin-top:8px">${p.running?'<button class="btn" onclick="pauseTimer()">⏸ Pausar</button>':'<button class="btn" onclick="startTimer()">▶ Iniciar</button>'}<button class="btn secondary" onclick="resetTimer()">Zerar</button></div></div><div class="compact-card"><h3>📝 Anotações</h3><textarea oninput="updateNotes(this.value)">${esc(p.notes)}</textarea></div><div class="compact-card"><h3>⚙ Projeto</h3><button class="btn secondary" onclick="exportProject()">Exportar</button> <button class="btn danger" onclick="deleteProject()">Excluir</button></div></div></details></div></div>`;if(p.running){clearInterval(timerHandle);timerHandle=setInterval(()=>{addTime(p);updateLive()},1000)}if(isPdfPattern(p))renderPdfPage(pdfPageCache[p.id]?.page||1);else setTimeout(positionRowHighlight,20)}
+
+function dataUrlToUint8Array(dataUrl){
+ const comma=dataUrl.indexOf(',');
+ if(comma<0)throw new Error('Arquivo PDF inválido');
+ const meta=dataUrl.slice(0,comma), body=dataUrl.slice(comma+1);
+ if(meta.includes(';base64')){
+   const bin=atob(body), out=new Uint8Array(bin.length);
+   for(let i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i);
+   return out;
+ }
+ return new TextEncoder().encode(decodeURIComponent(body));
+}
+
+async function loadPdfDocument(p){
+ if(!window.pdfjsLib){
+   throw new Error('Leitor de PDF não carregou. Verifique sua conexão com a internet e reabra o site.');
+ }
+ // Worker da mesma versão da biblioteca. Se ele falhar, o PDF.js tenta o modo auxiliar.
+ pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+ const bytes=dataUrlToUint8Array(p.pattern.data);
+ return pdfjsLib.getDocument({data:bytes}).promise;
+}
+
+async function getPdfPage(pageNo=1){
+ const p=project(); if(!isPdfPattern(p)) return null;
+ if(pdfPageCache[p.id]?.doc){
+   const doc=pdfPageCache[p.id].doc;
+   return doc.getPage(Math.min(pageNo,doc.numPages));
+ }
+ const doc=await loadPdfDocument(p);
+ pdfPageCache[p.id]={doc,page:pageNo};
+ return doc.getPage(Math.min(pageNo,doc.numPages));
+}
+
+async function renderPdfPage(pageNo=1){
+ const p=project(); if(!isPdfPattern(p)) return;
+ try{
+   const page=await getPdfPage(pageNo);
+   const viewport=page.getViewport({scale:1.7});
+   const canvas=document.getElementById('pdfCanvas');
+   if(!canvas)return;
+   const ctx=canvas.getContext('2d',{willReadFrequently:true});
+   canvas.width=viewport.width; canvas.height=viewport.height;
+   await page.render({canvasContext:ctx,viewport}).promise;
+   pdfPageCache[p.id].page=pageNo;
+   const info=document.getElementById('pdfPageInfo');
+   if(info)info.textContent=`Página ${pageNo} de ${pdfPageCache[p.id].doc.numPages}`;
+   const prevBtn=document.getElementById('pdfPrevBtn');
+   const nextBtn=document.getElementById('pdfNextBtn');
+   const totalPages=pdfPageCache[p.id].doc.numPages;
+   if(prevBtn){
+     prevBtn.disabled=pageNo<=1;
+     prevBtn.style.opacity=pageNo<=1?'.45':'1';
+     prevBtn.style.cursor=pageNo<=1?'not-allowed':'pointer';
+   }
+   if(nextBtn){
+     nextBtn.disabled=pageNo>=totalPages;
+     nextBtn.style.opacity=pageNo>=totalPages?'.45':'1';
+     nextBtn.style.cursor=pageNo>=totalPages?'not-allowed':'pointer';
+   }
+   positionRowHighlight();
+ }catch(err){
+   const wrap=document.getElementById('pdfPatternWrap');
+   if(wrap){const oldMsg=document.getElementById('pdfErrorMsg');if(oldMsg)oldMsg.remove();wrap.insertAdjacentHTML('afterend',`<div id="pdfErrorMsg" class="small" style="color:#b65d5d;margin-top:8px">⚠️ ${esc(err.message||'Não foi possível abrir o PDF.')}</div>`);}
+   console.error(err);
+ }
+}
+
+function pdfPrevPage(){
+ const p=project(), st=pdfPageCache[p?.id];
+ if(!st?.doc)return;
+ const current=Number(st.page||1);
+ if(current<=1){
+   toast('Este PDF tem apenas esta página.');
+   return;
+ }
+ const pos=captureViewerScroll();
+ renderPdfPage(current-1).then(()=>requestAnimationFrame(()=>restoreViewerScroll(pos)));
+}
+function pdfNextPage(){
+ const p=project(), st=pdfPageCache[p?.id];
+ if(!st?.doc)return;
+ const current=Number(st.page||1), total=Number(st.doc.numPages||1);
+ if(current>=total){
+   toast(total===1?'Este PDF tem apenas 1 página.':'Você já está na última página.');
+   return;
+ }
+ const pos=captureViewerScroll();
+ renderPdfPage(current+1).then(()=>requestAnimationFrame(()=>restoreViewerScroll(pos)));
+}
+function hexToRgba(hex,alpha=.22){let h=String(hex||'#2cab5f').replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');const n=parseInt(h,16);if(Number.isNaN(n))return `rgba(44,171,95,${alpha})`;return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${alpha})`;}
+function getRowGeometry(p,row){ensureProjectUiState(p);const canvas=document.getElementById('pdfCanvas'),img=document.getElementById('patternImg'),target=canvas||img;if(!target)return null;const total=Math.max(1,Number(p.totalRows)||Number(p.detectedRows)||1);row=Math.max(1,Math.min(total,Number(row)||1));const dir=getDirection(p);let top,height;const h=target.height||target.clientHeight||0;if(!h)return null;if(Number.isFinite(Number(p.gridTop))&&Number(p.gridPitch)>0){const pitch=Number(p.gridPitch),base=Number(p.gridTop),idx=dir==='bottom-up'?(total-row):(row-1);top=base+idx*pitch;height=pitch}else{height=h/total;top=dir==='bottom-up'?(total-row)*height:(row-1)*height}top=Math.max(0,Math.min(top,Math.max(0,h-height)));height=Math.max(3,Math.min(height,h-top));return{top,height}}
+function renderCompletedRows(){const p=project(),layer=document.getElementById('completedRowsLayer');if(!p||!layer)return;ensureProjectUiState(p);layer.innerHTML='';Object.keys(p.completedRows).map(Number).filter(r=>r>=1).sort((a,b)=>a-b).forEach(r=>{const g=getRowGeometry(p,r);if(!g)return;const color=p.completedRows[String(r)]||p.completedColor,band=document.createElement('div');band.className='completed-row-band';band.style.top=g.top+'px';band.style.height=g.height+'px';band.style.background=hexToRgba(color,.22);const lab=document.createElement('span');lab.className='completed-row-label';lab.textContent=String(r);lab.style.background=color;band.appendChild(lab);layer.appendChild(band)})}
+function positionRowHighlight(){const p=project(),band=document.getElementById('rowHighlight'),label=document.getElementById('rowHighlightLabel');if(!p||!band)return;ensureProjectUiState(p);const total=Math.max(0,Number(p.totalRows)||Number(p.detectedRows)||0),row=Math.max(0,Math.min(total||Infinity,Number(p.row)||0));if(!total||row<1){band.style.display='none';renderCompletedRows();return}const g=getRowGeometry(p,row);if(!g){band.style.display='none';return}band.style.top=g.top+'px';band.style.height=g.height+'px';band.style.display='block';band.style.background=hexToRgba(p.currentRowColor,.22);band.style.borderColor=p.currentRowColor;if(label){label.textContent='Carreira '+row;label.style.background=p.currentRowColor}renderCompletedRows()}
+// Compatibilidade com versões anteriores que chamavam esta função.
+function positionPatternMarker(){
+ const p=project();
+ const m=document.getElementById('patternMarker');
+ const canvas=document.getElementById('pdfCanvas');
+ if(!p||!m)return;
+
+ const total=Math.max(1,Number(p.totalRows||p.detectedRows||1));
+ const row=Math.min(total,Math.max(1,Number(p.row||1)));
+ const dir=getDirection(p);
+
+ // If exact grid coordinates were detected, use them.
+ const det=p.gridDetection || p.detectedGrid || null;
+ let topPct, heightPct;
+
+ if(det && Array.isArray(det.lines) && det.lines.length>=2){
+   const lines=det.lines;
+   const cells=Math.max(1,lines.length-1);
+   const idx=Math.min(cells-1,Math.max(0,row-1));
+   let y1,y2;
+   if(dir==='bottom-up'){
+     const revIdx=cells-1-idx;
+     y1=lines[revIdx];
+     y2=lines[revIdx+1];
+   }else{
+     y1=lines[idx];
+     y2=lines[idx+1];
+   }
+   const h=canvas?.height || det.height || 1;
+   topPct=(Math.min(y1,y2)/h)*100;
+   heightPct=(Math.abs(y2-y1)/h)*100;
+ }else{
+   heightPct=100/total;
+   topPct = dir==='bottom-up'
+     ? 100-(row*heightPct)
+     : (row-1)*heightPct;
+ }
+
+ m.style.top=`${Math.max(0,Math.min(100-heightPct,topPct))}%`;
+ m.style.height=`${Math.max(.35,heightPct)}%`;
+ m.dataset.row=String(row);
+
+ const label=document.getElementById('patternMarkerLabel');
+ if(label) label.textContent=`${row}`;
+}
+function isLightGrid(r,g,b){
+ return r>=190 && g>=190 && b>=190 && Math.max(r,g,b)-Math.min(r,g,b)<18;
+}
+function findGridLines(canvas){
+ const ctx=canvas.getContext('2d',{willReadFrequently:true});
+ const w=canvas.width,h=canvas.height;
+ if(w<50||h<50)return null;
+ const sw=Math.max(1,Math.floor(w/1000));
+ const sh=Math.max(1,Math.floor(h/1400));
+ const data=ctx.getImageData(0,0,w,h).data;
+ const scores=[];
+ // Percentual de pixels cinza-claro em cada faixa horizontal.
+ for(let y=0;y<h;y+=sh){
+   let hit=0,samples=0;
+   for(let x=Math.floor(w*.02);x<Math.floor(w*.98);x+=sw*2){
+     const i=(y*w+x)*4,r=data[i],g=data[i+1],b=data[i+2];
+     const spread=Math.max(r,g,b)-Math.min(r,g,b);
+     if(r>=175&&r<=252&&g>=175&&g<=252&&b>=175&&b<=252&&spread<18)hit++;
+     samples++;
+   }
+   scores.push({y,score:samples?hit/samples:0});
+ }
+ // As linhas da grade atravessam quase toda a largura. Um limite alto evita
+ // confundir detalhes cinza da imagem com linhas reais da grade.
+ const threshold=Math.max(.60,percentile(scores.map(s=>s.score),78));
+ const groups=[];
+ for(const pt of scores){
+   if(pt.score<threshold)continue;
+   const last=groups[groups.length-1];
+   if(last && pt.y-last[last.length-1].y<=Math.max(3,sh*2))last.push(pt);
+   else groups.push([pt]);
+ }
+ let centers=groups
+   .filter(g=>g.length<=Math.max(12,Math.ceil(12/sh)))
+   .map(g=>g.reduce((best,p)=>p.score>best.score?p:best,g[0]).y)
+   .sort((a,b)=>a-b);
+ if(centers.length<4)return null;
+ let gaps=[];
+ for(let i=1;i<centers.length;i++){
+   const d=centers[i]-centers[i-1];
+   if(d>3)gaps.push(d);
+ }
+ if(!gaps.length)return null;
+ // O espaçamento real aparece na maioria dos intervalos; saltos 2x/3x acontecem
+ // quando o desenho preto cobre uma linha da grade.
+ let base=percentile(gaps,45);
+ const near=gaps.filter(d=>d>=base*.75&&d<=base*1.35);
+ const pitch=near.length?(near.reduce((a,b)=>a+b,0)/near.length):base;
+ if(!isFinite(pitch)||pitch<4)return null;
+ let first=centers[0],last=centers[centers.length-1];
+ // Bordas pretas do papel podem parecer uma linha extra. Removemos somente extremos
+ // que não se encaixam na periodicidade da grade.
+ function edgeFit(a,b){const n=(b-a)/pitch;return Math.abs(n-Math.round(n));}
+ while(centers.length>4 && edgeFit(first,last)>.22){
+   const dropLast=edgeFit(first,centers[centers.length-2]);
+   const dropFirst=edgeFit(centers[1],last);
+   if(dropLast<=dropFirst){centers.pop();last=centers[centers.length-1];}
+   else {centers.shift();first=centers[0];}
+ }
+ const rows=Math.max(1,Math.round((last-first)/pitch));
+ const confidence=Math.max(0,Math.min(1,centers.length/(rows+1)));
+ return {lines:centers,pitch,rows,confidence,first,last};
+}
+function percentile(a,p){if(!a.length)return 0;const s=[...a].sort((x,y)=>x-y),i=(s.length-1)*p/100;const lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?s[lo]:s[lo]+(s[hi]-s[lo])*(i-lo)}
+function median(a){const n=a.length,s=[...a].sort((x,y)=>x-y);return n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2}
+
+async function detectPdfRows(){
+ const p=project(); if(!isPdfPattern(p)){toast('Adicione um PDF primeiro.');return}
+ const result=document.getElementById('detectResult');
+ if(result)result.textContent='🔎 Analisando a grade do PDF…';
+ try{
+   await renderPdfPage(1);
+   const canvas=document.getElementById('pdfCanvas');
+   if(!canvas)throw new Error('Canvas não encontrado');
+   const found=findGridLines(canvas);
+   if(!found)throw new Error('Grade não identificada');
+   p.detectedRows=found.rows;
+   p.gridTop=found.first; p.gridBottom=found.last; p.gridPitch=found.pitch;
+   p.totalRows=found.rows;
+   const c=p.counters.find(x=>x.name==='Carreiras'); if(c)c.target=found.rows;
+   save();
+   renderWork();
+   toast(`Detectadas ${found.rows} carreiras`);
+ }catch(e){
+   if(result)result.innerHTML='⚠️ Não consegui identificar a grade automaticamente. <button class="btn secondary" onclick="manualDetect()">Definir manualmente</button>';
+   console.error(e);
+ }
+}
+function manualDetect(){
+ const p=project();const n=prompt('Quantas carreiras tem o gráfico?',p.totalRows||'');
+ if(n)setDetectedRows(n);
+}
+
+function toggleViewerFullscreen(){const el=document.getElementById('viewerPanel');if(!el)return;if(document.fullscreenElement)document.exitFullscreen?.();else el.requestFullscreen?.()}
+function toggleViewerFocus(){document.body.classList.toggle('viewer-focus');const b=document.getElementById('focusBtn');if(b)b.textContent=document.body.classList.contains('viewer-focus')?'↩ Sair do foco':'⛶ Modo foco';setTimeout(positionRowHighlight,80)}
+function startVoice(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){toast('Seu navegador não oferece reconhecimento de voz.');return}
+ stopVoice();voiceRecognition=new SR();voiceRecognition.lang='pt-BR';voiceRecognition.continuous=true;voiceRecognition.interimResults=false;
+ voiceRecognition.onresult=e=>{const text=e.results[e.results.length-1][0].transcript.toLowerCase();if(text.includes('próxima')||text.includes('proxima')||text.includes('avançar')||text.includes('avancar'))changeRow(1);else if(text.includes('volta')||text.includes('voltar')||text.includes('anterior'))changeRow(-1);else if(text.includes('pausa')){project()?.running?pauseTimer():startTimer()}};
+ voiceRecognition.onend=()=>{if(voiceRecognition){try{voiceRecognition.start()}catch(e){}}};
+ voiceRecognition.start();document.getElementById('voiceStatus').textContent='🎙️ Ouvindo… diga “próxima”, “volta” ou “pausa”.'
+}
+function stopVoice(){if(voiceRecognition){voiceRecognition.onend=null;voiceRecognition.stop();voiceRecognition=null}const e=document.getElementById('voiceStatus');if(e)e.textContent='Desativado'}
+function exportProject(){
+ const p=project();const blob=new Blob([JSON.stringify(p,null,2)],{type:'application/json'});downloadBlob(blob,(p.name||'projeto')+'.json')
+}
+function exportData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});downloadBlob(blob,'meu-croche-backup.json')}
+function importBackup(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{const restored=JSON.parse(r.result);if(!restored||!Array.isArray(restored.projects))throw new Error('Formato inválido');if(!confirm('Restaurar este backup? Os projetos atuais serão substituídos.'))return;data=restored;save();currentId=data.projects[0]?.id||null;renderProjects();showPage('home');toast('Backup restaurado!')}catch(e){alert('Não foi possível restaurar este arquivo de backup.')}};r.readAsText(file)}
+function downloadBlob(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('Arquivo exportado')}
+function rule3(){const a=Number(document.getElementById('calcA').value),b=Number(document.getElementById('calcB').value),c=Number(document.getElementById('calcC').value);document.getElementById('calcD').value=a?((b*c)/a).toFixed(2):''}
+function estimate(){const r=Number(document.getElementById('etRows').value)||0,m=Number(document.getElementById('etMin').value)||0;const total=r*m;document.getElementById('etOut').textContent=total<60?total+' min':Math.floor(total/60)+'h '+(total%60)+'min'}
+document.addEventListener('keydown',e=>{
+ const tag=(e.target?.tagName||'').toLowerCase();
+ const typing=tag==='input'||tag==='textarea'||tag==='select'||e.target?.isContentEditable;
+ if(typing)return;
+ if(document.getElementById('page-work')?.classList.contains('hidden'))return;
+
+ if(e.code==='Space'){
+   e.preventDefault();
+   changeRow(1);
+   return;
+ }
+ if(e.key==='ArrowRight'){
+   e.preventDefault();
+   changeRow(1);
+   return;
+ }
+ if(e.key==='ArrowLeft'){
+   e.preventDefault();
+   changeRow(-1);
+   return;
+ }
+ if(e.key.toLowerCase()==='z'){
+   e.preventDefault();
+   changeRow(-1);
+   return;
+ }
+ if(e.key.toLowerCase()==='t'){
+   e.preventDefault();
+   project()?.running?pauseTimer():startTimer();
+   return;
+ }
+});
+window.addEventListener('beforeunload',()=>{const p=project();if(p&&p.running){addTime(p);p.running=false;save()}});
+renderProjects();
+applySidebarState();
+
+
+// === PWA ===
+let deferredInstallPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+ e.preventDefault();
+ deferredInstallPrompt=e;
+ const b=document.getElementById('pwaInstallBanner');
+ if(b)b.style.display='block';
+});
+window.addEventListener('appinstalled',()=>{
+ deferredInstallPrompt=null;
+ const b=document.getElementById('pwaInstallBanner');
+ if(b)b.style.display='none';
+ toast?.('Meu Crochê instalado!');
+});
+function hideInstallBanner(){
+ const b=document.getElementById('pwaInstallBanner');
+ if(b)b.style.display='none';
+}
+document.addEventListener('click',async e=>{
+ if(e.target?.id!=='pwaInstallBtn')return;
+ if(!deferredInstallPrompt){
+   toast?.('No Android/Chrome, use o menu ⋮ e “Adicionar à tela inicial”.');
+   return;
+ }
+ deferredInstallPrompt.prompt();
+ await deferredInstallPrompt.userChoice;
+ deferredInstallPrompt=null;
+ hideInstallBanner();
+});
+if('serviceWorker' in navigator){
+ window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.error));
+}
+
+</script>
+
+<div id="mobileBottomBar" class="mobile-bottom-bar">
+  <button class="btn secondary" onclick="changeRow(-1)" aria-label="Carreira anterior">−</button>
+  <button class="btn" onclick="changeRow(1)" aria-label="Próxima carreira">＋ Próxima</button>
+  <button class="btn secondary" onclick="toggleCurrentComplete?.()" aria-label="Concluir carreira">✓</button>
+</div>
+
+<div id="pwaInstallBanner" class="pwa-install-banner">
+ <div class="row">
+   <div><strong>📱 Instalar Meu Crochê</strong><div class="small">Use como aplicativo no celular.</div></div>
+   <div class="row"><button class="btn secondary" onclick="hideInstallBanner()">Agora não</button><button class="btn" id="pwaInstallBtn">Instalar</button></div>
+ </div>
+</div>
+
+</body>
+</html>

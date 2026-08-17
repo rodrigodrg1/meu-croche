@@ -1,0 +1,21 @@
+MEU CROCHÊ - PWA
+
+Arquivos:
+- index.html
+- manifest.webmanifest
+- sw.js
+- icon-192.png
+- icon-512.png
+
+Para instalar como aplicativo no Android, o PWA precisa ser servido por HTTPS
+(ou localhost durante testes). Abrir o index.html diretamente por file:// não
+permite registrar o Service Worker.
+
+Teste rápido no computador:
+1. Abra um terminal nesta pasta.
+2. Rode: python -m http.server 8080
+3. Abra http://localhost:8080 no navegador.
+
+No celular:
+Hospede esta pasta em um serviço HTTPS (GitHub Pages, Netlify, Cloudflare Pages etc.)
+e abra o endereço no Chrome. Depois use "Instalar app" / "Adicionar à tela inicial".
