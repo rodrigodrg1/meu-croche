@@ -1,5 +1,5 @@
 
-const CACHE='meu-croche-pwa-v1';
+const CACHE='meu-croche-pwa-v2-analysis';
 const APP_SHELL=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
 
 self.addEventListener('install',event=>{
