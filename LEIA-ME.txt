@@ -1,37 +1,26 @@
-MEU CROCHÊ V7.6.7 — APP MOBILE FINAL
+MEU CROCHÊ V7.6.7 — APP MOBILE ESTÁVEL
 
-Base:
-- exatamente o arquivo V7.6.7 enviado nesta conversa.
+Base usada:
+- meu-croche-v7-6-7-ponto-inicial-alternado(4).html
 
-Preservado sem mudar a lógica:
-- detecção automática de carreiras;
-- findGridLines();
-- findGridColumns();
-- detectPointRangesByRow();
-- detectPatternRows()/detectPdfRows();
-- contagem horizontal por carreira;
-- Ponto X de Y;
-- início esquerda/direita;
-- alternância ida e volta;
-- régua horizontal e vertical;
-- ponto ativo alinhado à grade.
+O JavaScript principal da V7.6.7 foi preservado.
+A adaptação foi feita principalmente no CSS e nos arquivos PWA.
 
-Mudanças apenas para APP:
-- navegação inferior no celular;
-- gráfico aparece primeiro;
-- painel de detecção fica visível e organizado;
-- controles maiores para toque;
-- interface sem aparência de desktop;
-- manifest PWA;
-- service worker com atualização network-first;
-- PDF.js preservado exatamente como na V7.6.7 original.
-
-NO GITHUB:
+NO GITHUB PAGES:
 Substitua:
 - index.html
 - manifest.webmanifest
 - sw.js
 
-Mantenha:
+Mantenha os arquivos já existentes:
 - icon-192.png
 - icon-512.png
+
+TESTES EXECUTADOS:
+- sintaxe JavaScript;
+- criação de projeto;
+- renderização da tela do projeto;
+- detecção de grade sintética;
+- contagem de carreiras;
+- contagem horizontal de pontos;
+- avanço/retorno de ponto.

@@ -3,13 +3,9 @@
   "name": "Meu Crochê",
   "short_name": "Meu Crochê",
   "description": "Contador de carreiras e pontos para gráficos de crochê.",
-  "start_url": "./?app=v767",
+  "start_url": "./?v=767-estavel",
   "scope": "./",
   "display": "standalone",
-  "display_override": [
-    "standalone",
-    "minimal-ui"
-  ],
   "orientation": "portrait-primary",
   "background_color": "#f7f3f0",
   "theme_color": "#9a5c70",

@@ -213,132 +213,178 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .dark .point-ruler-external-v75 .point-ruler-cell{background:var(--card);color:#8ec1ff}
 .dark .row-ruler-cell-v75.active{background:rgba(24,119,242,.22);color:#9bc9ff}
 
-/* ================= V7.6.7 APP MOBILE =================
-   SOMENTE INTERFACE. A lógica de detecção, grade, pontos, carreiras,
-   coordenadas e alternância da V7.6.7 permanece a mesma. */
-
-html,body{overscroll-behavior-y:none}
-body{padding-bottom:env(safe-area-inset-bottom)}
-
+/* =====================================================================
+   V7.6.7 APP MOBILE ESTÁVEL
+   Apenas apresentação/responsividade. A lógica V7.6.7 permanece intacta.
+   ===================================================================== */
 @media(max-width:760px){
-  :root{--radius:14px}
+  html,body{min-height:100%;overscroll-behavior-y:none}
+  body{padding:0 0 calc(72px + env(safe-area-inset-bottom));}
+  .app{display:block!important;min-height:100dvh}
 
-  /* Aparência de app: navegação inferior fixa */
-  .app{display:block;min-height:100dvh}
+  /* Barra inferior estilo aplicativo */
   .app>aside{
     position:fixed!important;
-    left:0;right:0;bottom:0;top:auto;
+    left:0!important; right:0!important; bottom:0!important; top:auto!important;
     height:64px!important;
     padding:6px 8px calc(6px + env(safe-area-inset-bottom))!important;
+    background:var(--card)!important;
     border:0!important;
     border-top:1px solid var(--line)!important;
-    background:var(--card)!important;
-    z-index:100;
-    box-shadow:0 -8px 24px rgba(0,0,0,.08);
+    box-shadow:0 -8px 28px rgba(0,0,0,.10);
+    z-index:300!important;
   }
-  .app>aside .brand,.app>aside .side-bottom,.app>aside .sidebar-toggle{display:none!important}
+  .app>aside .brand,
+  .app>aside .sidebar-toggle,
+  .app>aside .side-bottom{display:none!important}
   .app>aside .nav{
-    display:grid!important;
-    grid-template-columns:repeat(3,1fr);
-    gap:6px;
-    overflow:visible!important;
     height:100%;
+    display:grid!important;
+    grid-template-columns:repeat(3,1fr)!important;
+    gap:6px!important;
+    overflow:visible!important;
   }
   .app>aside .nav button{
     margin:0!important;
-    padding:6px 4px!important;
-    border-radius:11px!important;
-    justify-content:center!important;
+    padding:6px 3px!important;
+    min-height:48px;
+    display:flex!important;
     align-items:center!important;
+    justify-content:center!important;
     text-align:center!important;
-    white-space:nowrap!important;
+    border-radius:12px!important;
     font-size:11px!important;
-    line-height:1.15;
+    line-height:1.15!important;
+    white-space:nowrap!important;
   }
 
   main{
-    padding:10px 10px calc(78px + env(safe-area-inset-bottom))!important;
-    max-width:none!important;
     width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:10px 10px 8px!important;
   }
-  .top{gap:8px;margin-bottom:10px;align-items:flex-start}
-  .top h1{font-size:22px}
-  .subtitle{font-size:12px}
-  #page-work>.top>.row{gap:5px}
-  #page-work>.top>.row .btn,
-  #page-work>.top>.row label.btn{padding:8px 9px;font-size:11px}
 
-  /* Tela de trabalho: gráfico primeiro, controles depois */
-  .work-shell{
-    display:flex!important;
-    flex-direction:column!important;
-    gap:9px!important;
+  /* Cabeçalho compacto */
+  .top{margin-bottom:10px!important;gap:8px!important;align-items:flex-start!important}
+  h1{font-size:22px!important;line-height:1.15!important}
+  .subtitle{font-size:12px!important;line-height:1.3}
+  #page-work>.top>.row{gap:5px!important;justify-content:flex-end}
+  #page-work>.top>.row .btn,
+  #page-work>.top>.row label.btn{padding:8px 9px!important;font-size:11px!important}
+
+  /* Home */
+  .grid{gap:10px!important}
+  .project-card{grid-column:span 12!important;padding:14px!important;border-radius:14px!important}
+  .project-card h2{font-size:18px;margin:10px 0 7px}
+  .card{padding:14px!important}
+  .formgrid{grid-template-columns:1fr!important;gap:10px!important}
+
+  /* Novo projeto como painel inferior, acima da navegação */
+  .modal{
+    z-index:1000!important;
+    align-items:flex-end!important;
+    padding:0!important;
   }
-  .viewer-card{order:1;width:100%;border-radius:14px}
-  .work-rail{
-    order:2;
-    position:static!important;
-    width:100%;
-    max-height:none!important;
-    overflow:visible!important;
+  .modal-box{
+    width:100%!important;
+    max-width:none!important;
+    max-height:92dvh!important;
+    overflow:auto!important;
+    border-radius:22px 22px 0 0!important;
+    padding:18px 16px calc(22px + env(safe-area-inset-bottom))!important;
+  }
+  .modal-box .top{position:sticky;top:0;background:var(--card);z-index:2;padding-bottom:5px}
+  .modal-box .row:last-child{
+    position:sticky;
+    bottom:0;
+    background:var(--card);
+    padding-top:10px;
+  }
+  .modal-box .row:last-child .btn{min-height:44px}
+
+  /* Área de trabalho: controles essenciais -> gráfico -> demais opções */
+  .work-shell{
     display:grid!important;
     grid-template-columns:1fr!important;
-    gap:8px!important;
+    gap:9px!important;
   }
-  .extra-tools{order:3;width:100%;margin-top:0!important}
+  .work-rail{
+    display:contents!important;
+    position:static!important;
+    max-height:none!important;
+    overflow:visible!important;
+  }
+  .work-rail>.compact-card{grid-column:1!important;margin:0!important}
+  .work-rail>.compact-card:nth-child(1){order:1}
+  .work-rail>.compact-card:nth-child(2){order:2}
+  .viewer-card{order:3;grid-column:1!important;border-radius:15px!important;overflow:hidden!important}
+  .work-rail>.compact-card:nth-child(n+3){order:4}
+  .extra-tools{order:5;grid-column:1!important;margin-top:0!important}
 
-  /* Toolbar vira faixa horizontal de ações */
-  .viewer-toolbar{
-    padding:8px!important;
-    display:block!important;
+  /* Carreira e ponto mais claros */
+  .compact-card{padding:12px!important;border-radius:14px!important}
+  .compact-card h3{margin:0 0 8px!important;font-size:12px!important}
+  .mini-counter{padding:1px 0 8px!important}
+  .mini-counter strong{font-size:36px!important}
+  #activePointSummary{
+    margin:0 0 9px!important;
+    padding:9px 10px!important;
+    border-radius:10px!important;
+    background:var(--accent2)!important;
+    color:var(--accent)!important;
+    text-align:center!important;
+    font-size:16px!important;
   }
-  .viewer-file{
-    max-width:100%!important;
-    margin-bottom:7px;
-    font-size:12px!important;
-  }
+  .nav-grid .btn,
+  .point-counter-grid .btn,
+  .direction-grid .btn,
+  .jump-row .btn{min-height:42px!important}
+
+  /* Barra do visualizador: ações em rolagem horizontal */
+  .viewer-toolbar{display:block!important;padding:8px!important}
+  .viewer-file{max-width:100%!important;margin-bottom:7px;font-size:12px!important}
   .viewer-actions{
-    width:100%;
+    width:100%!important;
     display:flex!important;
     flex-wrap:nowrap!important;
-    overflow-x:auto;
     gap:5px!important;
+    overflow-x:auto!important;
     padding-bottom:3px;
     scrollbar-width:none;
   }
   .viewer-actions::-webkit-scrollbar{display:none}
-  .viewer-actions .btn,.viewer-actions label.btn{
-    flex:0 0 auto;
-    white-space:nowrap;
+  .viewer-actions .btn,
+  .viewer-actions label.btn{
+    flex:0 0 auto!important;
+    white-space:nowrap!important;
     padding:8px 9px!important;
     font-size:11px!important;
   }
-  .viewer-actions input[type=color]{flex:0 0 36px}
+  .viewer-actions input[type=color]{flex:0 0 38px!important}
 
-  /* Área do gráfico otimizada para toque */
+  /* Gráfico amplo, com rolagem livre */
   .viewer-card .pattern-wrap{
-    height:56dvh!important;
+    height:54dvh!important;
     min-height:330px!important;
     max-height:none!important;
-    overscroll-behavior:contain;
+    border-radius:0!important;
     -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
   }
   .pattern-shell-v75{--row-ruler-w:42px;--point-ruler-h:30px}
-  .row-ruler-external-v75{width:39px}
-  .row-ruler-cell-v75{width:36px;font-size:8px}
-  .point-ruler-cell{font-size:9px}
+  .row-ruler-external-v75{width:39px!important}
+  .row-ruler-cell-v75{width:36px!important;font-size:8px!important}
+  .point-ruler-cell{font-size:9px!important}
 
-  /* Detecção sempre visível e organizada */
-  .viewer-footer{
-    padding:9px!important;
-    display:block!important;
-  }
+  /* Detecção: botão grande e campos legíveis */
+  .viewer-footer{display:block!important;padding:10px!important}
   .detect-inline{
+    width:100%!important;
     display:grid!important;
-    grid-template-columns:auto 1fr!important;
-    align-items:center!important;
+    grid-template-columns:auto minmax(0,1fr)!important;
     gap:7px 8px!important;
-    width:100%;
+    align-items:center!important;
   }
   .detect-inline>strong{grid-column:1}
   .detect-inline>.small:first-of-type{
@@ -349,9 +395,9 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     white-space:nowrap;
   }
   .detect-inline>.btn{
-    grid-column:1 / -1;
-    width:100%;
-    min-height:42px;
+    grid-column:1 / -1!important;
+    width:100%!important;
+    min-height:44px!important;
     font-size:13px!important;
   }
   .detect-inline>.detect-number{
@@ -360,53 +406,28 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     padding:9px!important;
   }
   .detect-inline>.small:not(:first-of-type){
-    white-space:nowrap;
-    margin-left:4px;
+    white-space:nowrap!important;
   }
   .viewer-footer>.completed-chip{
-    margin-top:8px;
-    width:100%;
-    justify-content:center;
+    width:100%!important;
+    justify-content:center!important;
+    margin-top:8px!important;
   }
 
-  /* Cards de controle mais compactos e touch-friendly */
-  .compact-card{padding:12px!important}
-  .compact-card h3{margin-bottom:8px!important}
-  .nav-grid .btn,.point-counter-grid .btn,.direction-grid .btn{
-    min-height:42px;
-  }
-  .mini-counter strong{font-size:34px!important}
-  #activePointSummary{
-    font-size:16px!important;
-    text-align:center;
-    padding:7px;
-    border-radius:9px;
-    background:var(--accent2);
-    color:var(--accent);
-  }
+  .extra-grid{grid-template-columns:1fr!important;gap:8px!important}
 
-  .formgrid{grid-template-columns:1fr!important}
-  .card{padding:14px!important}
-  .project-card{grid-column:span 12!important}
-  .extra-grid{grid-template-columns:1fr!important}
-
-  /* Modal em formato de sheet */
-  .modal{align-items:flex-end!important;padding:0!important}
-  .modal-box{
-    border-radius:20px 20px 0 0!important;
-    max-height:90dvh;
-    overflow:auto;
-    padding-bottom:calc(20px + env(safe-area-inset-bottom))!important;
-  }
-
-  /* Evita zoom automático do iOS e melhora toque */
-  input,select,textarea{font-size:16px}
+  /* Toque e teclado */
   button,.btn{touch-action:manipulation}
+  input,select,textarea{font-size:16px!important}
+  .toast{
+    left:12px!important;right:12px!important;bottom:78px!important;
+    text-align:center!important;
+  }
 }
 
 @media(max-width:390px){
   main{padding-left:7px!important;padding-right:7px!important}
-  .viewer-card .pattern-wrap{height:53dvh!important;min-height:310px!important}
+  .viewer-card .pattern-wrap{height:51dvh!important;min-height:305px!important}
   .app>aside .nav button{font-size:10px!important}
 }
 
@@ -423,7 +444,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   </div>
   <div class="side-bottom">
     <button class="btn secondary" style="width:100%" onclick="toggleDark()">🌙 Aparência</button>
-    <div class="small" style="margin:10px 5px">Tudo fica salvo neste navegador.<br>Versão 7.6.7 APP · grade + pontos</div>
+    <div class="small" style="margin:10px 5px">Tudo fica salvo neste navegador.<br>Versão 7.6.7 APP · estável</div>
   </div>
 </aside>
 
@@ -1583,13 +1604,10 @@ applySidebarState();
 
 <script>
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', async () => {
-    try {
-      const reg = await navigator.serviceWorker.register('./sw.js', {scope:'./'});
-      reg.update();
-    } catch (e) {
-      console.warn('Service Worker:', e);
-    }
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', {scope:'./'})
+      .then(reg => reg.update())
+      .catch(err => console.warn('SW:', err));
   });
 }
 </script>

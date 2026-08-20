@@ -1,0 +1,31 @@
+RELATÓRIO DE TESTE — V7.6.7 APP MOBILE ESTÁVEL
+
+Resultado: APROVADO nos testes automatizados disponíveis neste ambiente.
+
+1. JavaScript
+- Sintaxe: OK
+
+2. Criação de projeto
+- Criou projeto: OK
+- Abriu a tela do projeto após criar: OK
+
+3. Detecção de grade
+Teste com uma grade sintética de 15 carreiras x 20 pontos:
+- Carreiras detectadas: 15/15
+- Pontos detectados: 20/20
+
+4. Contador horizontal
+- Ponto inicial: 1
+- Avançar ponto: 1 -> 2
+- Indicador atualizado: "Carreira 1 | Ponto 2 de 20"
+
+5. Interface mobile
+Teste em viewport 390 x 844:
+- Navegação inferior fixa: OK
+- Contador de pontos visível: OK
+- Botão de detecção presente: OK
+- Visualizador responsivo: OK
+
+Observação:
+O teste de detecção foi feito com uma grade sintética regular para verificar se
+a adaptação mobile não quebrou as funções originais de carreiras e pontos.
