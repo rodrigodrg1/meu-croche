@@ -1,24 +1,28 @@
-MEU CROCHÊ V7.6.7 APP MOBILE V2
+MEU CROCHÊ V7.6.7 — INTERFACE FOCO CROCHÊ
 
-CORREÇÃO PRINCIPAL
-- Detecção em celular agora usa uma cópia de análise limitada a ~5 megapixels.
-- As coordenadas detectadas são convertidas novamente para o tamanho original.
-- Isso reduz falhas de memória do canvas/getImageData em celulares.
-- Se ainda falhar, o aviso agora mostra o motivo real (ex.: grade não identificada).
+ALTERAÇÕES
+- gráfico maior e com prioridade;
+- Próximo ponto é o botão principal;
+- Anterior continua grande, porém secundário;
+- carreira anterior/próxima ficam menores;
+- barra Projetos / Projeto atual / Ferramentas é retrátil;
+- uma seta continua visível para mostrar a barra novamente;
+- ao recolher a barra, a área do gráfico aumenta.
 
-PRESERVADO
+FUNCIONALIDADE PRESERVADA DA MOBILE V2
 - criação de projeto;
+- detecção mobile otimizada;
 - contagem de carreiras;
-- contagem de pontos por carreira;
-- alternância esquerda/direita;
-- ponto ativo e réguas;
-- zoom e marcações.
+- contagem de pontos;
+- alternância de sentido;
+- zoom, réguas e marcações.
 
-INTERFACE
-- gráfico e detecção aparecem antes dos cartões secundários;
-- campos manuais lado a lado com rótulos claros;
-- botões maiores para toque;
-- navegação inferior mantida.
+NO GITHUB PAGES
+Substitua:
+- index.html
+- manifest.webmanifest
+- sw.js
 
-GITHUB: substitua index.html, manifest.webmanifest e sw.js.
-Mantenha icon-192.png e icon-512.png.
+Mantenha:
+- icon-192.png
+- icon-512.png

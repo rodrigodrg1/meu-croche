@@ -3,7 +3,7 @@
   "name": "Meu Crochê",
   "short_name": "Meu Crochê",
   "description": "Contador de carreiras e pontos para gráficos de crochê.",
-  "start_url": "./?v=767-mobile-v2",
+  "start_url": "./?v=767-foco-croche",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
