@@ -107,56 +107,106 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 #pdfPatternWrap{scroll-behavior:auto;overflow-anchor:none}
 .pattern-wrap{overflow-anchor:none}
 
-/* === PWA / CELULAR === */
-:root{--mobile-bar-h:68px}
-html,body{overscroll-behavior:none}
-body{touch-action:manipulation}
-button,.btn{min-height:44px}
-.pattern-wrap{touch-action:pan-x pan-y pinch-zoom}
-.mobile-bottom-bar{display:none}
-.pwa-install-banner{display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:1000;
- background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:16px;padding:12px}
-.pwa-install-banner .row{justify-content:space-between}
-@media(max-width:900px){
- body{padding-bottom:var(--mobile-bar-h)}
- .app{display:block;min-height:100vh}
- aside{position:sticky;top:0;z-index:20;height:auto;padding:8px 10px;border-right:0;border-bottom:1px solid var(--line)}
- .brand{margin:0 44px 8px 4px;font-size:18px}
- .nav{display:flex;gap:6px;overflow-x:auto}
- .nav button{flex:0 0 auto;padding:9px 12px;margin:0}
- .side-bottom{display:none}
- main{padding:10px;max-width:none}
- .top{margin-bottom:10px;align-items:flex-start}
- h1{font-size:22px}
- .grid{gap:10px}
- .card{padding:12px;border-radius:14px}
- .counter-value{font-size:54px}
- .circle-btn{width:54px;height:54px}
- .pattern-wrap{max-height:72vh;border-radius:12px}
- #pdfCanvas{max-width:none}
- .mobile-bottom-bar{
-   position:fixed;left:0;right:0;bottom:0;height:var(--mobile-bar-h);z-index:999;
-   display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 12px;
-   background:var(--card);border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.12)
- }
- .mobile-bottom-bar button{flex:1;max-width:150px;font-size:20px;font-weight:800}
- .app.sidebar-collapsed{display:block}
- .app.sidebar-collapsed aside{padding:8px 10px}
- .app.sidebar-collapsed .brand{display:none}
- .app.sidebar-collapsed .nav{display:flex}
- .sidebar-toggle{top:8px;right:8px}
+
+/* V6.3 — zoom, pontos e overlays estáveis */
+.zoom-readout{min-width:54px;text-align:center;font-size:12px;font-weight:800;color:var(--muted)}
+.point-marks-layer{position:absolute;left:0;top:0;pointer-events:none;z-index:10}
+.point-mark{position:absolute;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);border:2px solid rgba(255,255,255,.95);box-shadow:0 1px 4px rgba(0,0,0,.35);pointer-events:auto;cursor:pointer}
+.pattern-stage.point-mode{cursor:crosshair}
+.pattern-stage.point-mode canvas,.pattern-stage.point-mode img{cursor:crosshair}
+.viewer-actions{flex-wrap:wrap}.viewer-toolbar{align-items:flex-start}
+.btn.active-tool{box-shadow:0 0 0 2px var(--accent) inset;background:var(--accent2);color:var(--accent)}
+.voice-state{font-size:12px;color:var(--muted);max-width:230px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.detect-number{width:82px!important;padding:7px!important}
+.pattern-stage{vertical-align:top}
+/* V7.1 — centralização horizontal puramente visual.
+   Não altera canvas/imagem, coordenadas da grade, overlays ou pontos. */
+.pattern-wrap.horizontal-centered .pattern-stage{
+  display:block;
+  width:max-content;
+  min-width:0;
+  margin-left:auto;
+  margin-right:auto;
 }
 
+
+/* V7.3 — contagem horizontal por carreira (sem alterar a geometria vertical) */
+.point-counter-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.point-counter-grid .btn{padding:9px 6px}
+.point-active-layer{position:absolute;inset:0;pointer-events:none;z-index:9}
+.point-active-cell{position:absolute;display:none;border:2px solid #ff8a00;background:rgba(255,138,0,.18);box-shadow:0 0 0 1px rgba(255,255,255,.75) inset;pointer-events:none}
+.point-active-label{position:absolute;left:50%;top:0;transform:translate(-50%,-100%);background:#ff8a00;color:#fff;padding:2px 6px;border-radius:6px 6px 0 0;font-size:10px;font-weight:800;line-height:1.2;white-space:nowrap}
+/* V7.4 — a etiqueta da carreira não ocupa nenhuma coluna da régua. */
+.row-highlight-label{display:none!important}
+.pattern-stage.point-ruler-enabled{padding-bottom:30px}
+.point-ruler-layer{position:absolute;left:0;height:30px;pointer-events:none;z-index:12;overflow:visible}
+.point-ruler-cell{position:absolute;top:0;height:28px;display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(24,119,242,.45);border-right:1px solid rgba(24,119,242,.20);border-bottom:1px solid rgba(24,119,242,.45);background:rgba(255,255,255,.94);color:#1769c2;font-size:10px;font-weight:800;line-height:1;white-space:nowrap;overflow:hidden}
+.point-ruler-cell.active{background:rgba(255,138,0,.16);border:2px solid #ff8a00;color:#b95d00;z-index:2}
+.dark .point-ruler-cell{background:rgba(30,27,26,.96);color:#8ec1ff}
+.dark .point-ruler-cell.active{background:rgba(255,138,0,.20);color:#ffb45c}
+.metric-box{margin-top:8px;padding:8px 9px;border:1px solid var(--line);border-radius:10px;background:rgba(127,127,127,.04)}
+.metric-box strong{display:block;font-size:18px;margin-top:2px}
+
+
+/* ================= V7.5 — RÉGUAS EXTERNAS / CANVAS LIMPO =================
+   As réguas vivem FORA do pattern-stage. Nada nelas altera coordenadas da grade.
+   Dentro do gráfico permanecem apenas overlays leves: carreira, concluídas, pontos e célula ativa. */
+.pattern-shell-v75{
+  --row-ruler-w:52px;
+  --point-ruler-h:30px;
+  position:relative;
+  display:inline-block;
+  width:max-content;
+  padding-left:var(--row-ruler-w);
+  padding-bottom:var(--point-ruler-h);
+  line-height:0;
+  vertical-align:top;
+}
+.pattern-shell-v75 .pattern-stage{
+  display:inline-block;
+  min-width:0!important;
+  margin:0!important;
+  padding:0!important;
+  vertical-align:top;
+}
+.pattern-shell-v75 .pattern-stage canvas,
+.pattern-shell-v75 .pattern-stage img{display:block;max-width:none}
+.row-ruler-external-v75{
+  position:absolute;left:0;top:0;width:48px;height:0;
+  pointer-events:none;z-index:15;overflow:visible;
+}
+.row-ruler-cell-v75{
+  position:absolute;right:4px;width:42px;display:flex;align-items:center;justify-content:flex-end;
+  padding-right:5px;border-bottom:1px solid rgba(24,119,242,.22);
+  color:var(--muted);font-size:9px;font-weight:750;line-height:1;overflow:hidden;white-space:nowrap;
+}
+.row-ruler-cell-v75.active{
+  background:rgba(24,119,242,.12);color:#1877f2;border-right:3px solid #1877f2;font-weight:900;
+}
+.point-ruler-external-v75{
+  position:absolute;left:var(--row-ruler-w);height:30px;
+  pointer-events:none;z-index:15;overflow:visible;
+}
+.point-ruler-external-v75 .point-ruler-cell{
+  top:0;height:28px;background:var(--card);border-top:1px solid rgba(24,119,242,.28);
+  border-bottom:1px solid rgba(24,119,242,.38);color:#1769c2;
+}
+.point-ruler-external-v75 .point-ruler-cell.active{
+  background:rgba(255,138,0,.12);border:2px solid #ff8a00;color:#b95d00;
+}
+/* Zero tags/textos internos sobre o desenho. */
+.row-highlight-label,.completed-row-label,.point-active-label{display:none!important}
+.pattern-stage.point-ruler-enabled{padding-bottom:0!important}
+.point-active-cell{background:rgba(255,138,0,.06)!important;border:2px solid #ff8a00!important;box-shadow:none!important}
+.row-highlight{background:rgba(24,119,242,.14)!important}
+/* Centralização da V7.5 move o conjunto imagem+réguas; não toca no eixo lógico. */
+.pattern-wrap.horizontal-centered .pattern-stage{margin:0!important}
+.pattern-wrap.horizontal-centered .pattern-shell-v75{
+  display:block;width:max-content;min-width:0;margin-left:auto;margin-right:auto;
+}
+.dark .point-ruler-external-v75 .point-ruler-cell{background:var(--card);color:#8ec1ff}
+.dark .row-ruler-cell-v75.active{background:rgba(24,119,242,.22);color:#9bc9ff}
 </style>
-
-<link rel="manifest" href="./manifest.webmanifest">
-<meta name="theme-color" content="#211d1b">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Meu Crochê">
-<link rel="apple-touch-icon" href="./icon-192.png">
-
 </head>
 <body>
 <div class="app" id="appRoot">
@@ -169,7 +219,7 @@ button,.btn{min-height:44px}
   </div>
   <div class="side-bottom">
     <button class="btn secondary" style="width:100%" onclick="toggleDark()">🌙 Aparência</button>
-    <div class="small" style="margin:10px 5px">Tudo fica salvo neste navegador.<br>Versão 6.2.2 · concluídas + visual</div>
+    <div class="small" style="margin:10px 5px">Tudo fica salvo neste navegador.<br>Versão 7.4 · régua 1:1</div>
   </div>
 </aside>
 
@@ -312,6 +362,7 @@ function clearCompleted(){const p=project();if(!p||!confirm('Remover todas as ma
 function setDirection(dir){
  const p=project(); if(!p)return;
  p.direction=dir==='top-down'?'top-down':'bottom-up';
+ p.activePoint=1;
  save(); rerenderPreserveViewer();
  toast(p.direction==='bottom-up'?'Carreiras: de baixo para cima':'Carreiras: de cima para baixo');
 }
@@ -425,7 +476,7 @@ function uploadPattern(input){
    p.pattern={name:file.name,type:isPdf?'application/pdf':file.type,data:reader.result};
    p.detectedRows=null;
    save();renderWork();
-   toast(isPdf?'PDF adicionado — clique em ANALISAR':'Imagem adicionada — clique em ANALISAR');
+   toast(isPdf?'PDF adicionado — clique em DETECTAR':'Padrão adicionado');
  };
  reader.readAsDataURL(file)
 }
@@ -450,22 +501,13 @@ function renderPattern(p){
  }
  return `<div class="pattern-wrap"><div class="pattern-stage" id="patternStage"><img id="patternImg" src="${p.pattern.data}" alt="Padrão" onload="positionRowHighlight()">${completed}${highlight}</div></div>`;
 }
-function isImagePattern(p){
- return !!(p && p.pattern && !isPdfPattern(p) && (
-   String(p.pattern.type||'').startsWith('image/') ||
-   /\.(png|jpe?g|webp|gif)$/i.test(String(p.pattern.name||''))
- ));
-}
-function canDetectPattern(p){
- return !!(p && p.pattern && (isPdfPattern(p) || isImagePattern(p)));
-}
 function isPdfPattern(p){
  return !!(p && p.pattern && (
    p.pattern.type==='application/pdf' ||
    String(p.pattern.name||'').toLowerCase().endsWith('.pdf')
  ));
 }
-function renderWork(){const p=project();if(!p){showPage('home');return}ensureProjectUiState(p);document.getElementById('work-title').textContent=p.name;document.getElementById('work-subtitle').textContent=`${p.type} · criado em ${new Date(p.created).toLocaleDateString('pt-BR')}`;const pct=p.totalRows?Math.min(100,(completedCount(p)/p.totalRows)*100):0,isDone=!!p.completedRows[String(p.row)],patternName=p.pattern?.name||'Nenhuma receita carregada';document.getElementById('work-content').innerHTML=`<div class="work-shell"><aside class="work-rail"><div class="compact-card"><h3>Carreira atual</h3><div class="mini-counter"><strong>${p.row||0}</strong> <span>${p.totalRows?' / '+p.totalRows:''}</span></div><div class="nav-grid"><button class="btn secondary" onclick="changeRow(-10)">−10</button><button class="btn secondary" onclick="changeRow(-1)">−</button><button class="btn" onclick="changeRow(1)">＋</button><button class="btn secondary" onclick="changeRow(10)">+10</button></div><div class="jump-row"><input id="jumpRow" type="number" min="1" max="${p.totalRows||9999}" placeholder="Ir para..." onkeydown="if(event.key==='Enter')goToRow()"><button class="btn secondary" onclick="goToRow()">Ir</button></div></div><div class="compact-card"><h3>Marcações</h3><button class="btn ${isDone?'secondary':''} mark-action" onclick="toggleCompletedRow(${p.row||1})">${isDone?'↩ Reabrir atual':'✓ Concluir atual'}</button><button class="btn secondary mark-action" onclick="markThroughCurrent()">✓ Marcar até a atual</button><div class="switch-row" style="margin-top:10px"><input id="autoMark" type="checkbox" ${p.autoMarkCompleted?'checked':''} onchange="setAutoMarkCompleted(this.checked)"><label for="autoMark" style="margin:0;color:inherit">Ao avançar, concluir a anterior</label></div><div class="color-row" style="margin-top:10px"><div><div class="small">Cor das próximas concluídas</div><span class="completed-chip"><span class="dot" style="background:${p.completedColor}"></span>${completedCount(p)} concluídas</span></div><input type="color" value="${p.completedColor}" onchange="setCompletedColor(this.value)"></div><div class="row" style="margin-top:8px"><button class="btn secondary" style="flex:1;padding:8px" onclick="recolorCompleted()">Aplicar a todas</button><button class="btn ghost" style="padding:8px" onclick="clearCompleted()">Limpar</button></div></div><div class="compact-card"><h3>Sentido</h3><div class="direction-grid"><button class="btn ${getDirection(p)==='bottom-up'?'':'secondary'}" onclick="setDirection('bottom-up')">⬆ Baixo → cima</button><button class="btn ${getDirection(p)==='top-down'?'':'secondary'}" onclick="setDirection('top-down')">⬇ Cima → baixo</button></div></div><div class="compact-card"><h3>Progresso</h3><div class="progress"><div data-progress-fill style="width:${pct}%"></div></div><div class="small" style="margin-top:7px">${completedCount(p)} de ${p.totalRows||'?'} concluídas · ${Math.round(pct)}%</div></div><div class="compact-card"><h3>Atalhos</h3><div class="small"><span class="shortcut">Espaço</span> próxima · <span class="shortcut">Z</span> voltar<br><span class="shortcut">T</span> tempo</div></div></aside><section class="viewer-card" id="viewerPanel"><div class="viewer-toolbar"><div class="viewer-file">📄 ${esc(patternName)}${p.pattern&&!p.detectedRows?`<div class="small">PDF/PNG/JPG: carregue e toque em <strong>Analisar carreiras</strong>.</div>`:""}</div><div class="viewer-actions"><button id="focusBtn" class="btn secondary" onclick="toggleViewerFocus()">⛶ Modo foco</button><button class="btn secondary" onclick="toggleViewerFullscreen()">⛶ Tela cheia</button><label class="btn secondary" style="cursor:pointer">Trocar arquivo<input type="file" accept="image/*,.pdf,application/pdf" hidden onchange="uploadPattern(this)"></label>${p.pattern?'<button class="btn danger" onclick="removePattern()">Remover</button>':''}</div></div>${renderPattern(p)}<div class="viewer-footer"><div class="detect-inline">${canDetectPattern(p)?`<strong style="font-size:12px">Análise:</strong><span class="small">${p.detectedRows?'✅ '+p.detectedRows+' carreiras':'não realizada'}</span><button class="btn" onclick="detectPatternRows()">🔎 ${p.detectedRows?'Analisar novamente':'Analisar carreiras'}</button>${p.detectedRows?`<input type="number" min="1" value="${p.detectedRows}" style="width:82px;padding:7px" onchange="setDetectedRows(this.value)">`:''}`:''}</div><div class="completed-chip"><span class="dot" style="background:${p.currentRowColor}"></span>Atual <span class="dot" style="background:${p.completedColor};margin-left:8px"></span>Concluídas</div></div></section><div class="extra-tools"><details><summary>Mais ferramentas do projeto</summary><div class="extra-grid"><div class="compact-card"><h3>⏱ Tempo</h3><div id="liveTime" style="font-size:24px;font-weight:800">${formatTime(p.seconds)}</div><div class="row" style="margin-top:8px">${p.running?'<button class="btn" onclick="pauseTimer()">⏸ Pausar</button>':'<button class="btn" onclick="startTimer()">▶ Iniciar</button>'}<button class="btn secondary" onclick="resetTimer()">Zerar</button></div></div><div class="compact-card"><h3>📝 Anotações</h3><textarea oninput="updateNotes(this.value)">${esc(p.notes)}</textarea></div><div class="compact-card"><h3>⚙ Projeto</h3><button class="btn secondary" onclick="exportProject()">Exportar</button> <button class="btn danger" onclick="deleteProject()">Excluir</button></div></div></details></div></div>`;if(p.running){clearInterval(timerHandle);timerHandle=setInterval(()=>{addTime(p);updateLive()},1000)}if(isPdfPattern(p))renderPdfPage(pdfPageCache[p.id]?.page||1);else setTimeout(positionRowHighlight,20)}
+function renderWork(){const p=project();if(!p){showPage('home');return}ensureProjectUiState(p);document.getElementById('work-title').textContent=p.name;document.getElementById('work-subtitle').textContent=`${p.type} · criado em ${new Date(p.created).toLocaleDateString('pt-BR')}`;const pct=p.totalRows?Math.min(100,(completedCount(p)/p.totalRows)*100):0,isDone=!!p.completedRows[String(p.row)],patternName=p.pattern?.name||'Nenhuma receita carregada';document.getElementById('work-content').innerHTML=`<div class="work-shell"><aside class="work-rail"><div class="compact-card"><h3>Carreira atual</h3><div class="mini-counter"><strong>${p.row||0}</strong> <span>${p.totalRows?' / '+p.totalRows:''}</span></div><div class="nav-grid"><button class="btn secondary" onclick="changeRow(-10)">−10</button><button class="btn secondary" onclick="changeRow(-1)">−</button><button class="btn" onclick="changeRow(1)">＋</button><button class="btn secondary" onclick="changeRow(10)">+10</button></div><div class="jump-row"><input id="jumpRow" type="number" min="1" max="${p.totalRows||9999}" placeholder="Ir para..." onkeydown="if(event.key==='Enter')goToRow()"><button class="btn secondary" onclick="goToRow()">Ir</button></div></div><div class="compact-card"><h3>Marcações</h3><button class="btn ${isDone?'secondary':''} mark-action" onclick="toggleCompletedRow(${p.row||1})">${isDone?'↩ Reabrir atual':'✓ Concluir atual'}</button><button class="btn secondary mark-action" onclick="markThroughCurrent()">✓ Marcar até a atual</button><div class="switch-row" style="margin-top:10px"><input id="autoMark" type="checkbox" ${p.autoMarkCompleted?'checked':''} onchange="setAutoMarkCompleted(this.checked)"><label for="autoMark" style="margin:0;color:inherit">Ao avançar, concluir a anterior</label></div><div class="color-row" style="margin-top:10px"><div><div class="small">Cor das próximas concluídas</div><span class="completed-chip"><span class="dot" style="background:${p.completedColor}"></span>${completedCount(p)} concluídas</span></div><input type="color" value="${p.completedColor}" onchange="setCompletedColor(this.value)"></div><div class="row" style="margin-top:8px"><button class="btn secondary" style="flex:1;padding:8px" onclick="recolorCompleted()">Aplicar a todas</button><button class="btn ghost" style="padding:8px" onclick="clearCompleted()">Limpar</button></div></div><div class="compact-card"><h3>Sentido</h3><div class="direction-grid"><button class="btn ${getDirection(p)==='bottom-up'?'':'secondary'}" onclick="setDirection('bottom-up')">⬆ Baixo → cima</button><button class="btn ${getDirection(p)==='top-down'?'':'secondary'}" onclick="setDirection('top-down')">⬇ Cima → baixo</button></div></div><div class="compact-card"><h3>Progresso</h3><div class="progress"><div data-progress-fill style="width:${pct}%"></div></div><div class="small" style="margin-top:7px">${completedCount(p)} de ${p.totalRows||'?'} concluídas · ${Math.round(pct)}%</div></div><div class="compact-card"><h3>Atalhos</h3><div class="small"><span class="shortcut">Espaço</span> próxima · <span class="shortcut">Z</span> voltar<br><span class="shortcut">T</span> tempo</div></div></aside><section class="viewer-card" id="viewerPanel"><div class="viewer-toolbar"><div class="viewer-file">📄 ${esc(patternName)}</div><div class="viewer-actions"><button id="focusBtn" class="btn secondary" onclick="toggleViewerFocus()">⛶ Modo foco</button><button class="btn secondary" onclick="toggleViewerFullscreen()">⛶ Tela cheia</button><label class="btn secondary" style="cursor:pointer">Trocar arquivo<input type="file" accept="image/*,.pdf,application/pdf" hidden onchange="uploadPattern(this)"></label>${p.pattern?'<button class="btn danger" onclick="removePattern()">Remover</button>':''}</div></div>${renderPattern(p)}<div class="viewer-footer"><div class="detect-inline">${isPdfPattern(p)?`<strong style="font-size:12px">Detecção:</strong><span class="small">${p.detectedRows?'✅ '+p.detectedRows+' carreiras':'não realizada'}</span><button class="btn" onclick="detectPdfRows()">🔎 ${p.detectedRows?'Detectar novamente':'Detectar carreiras'}</button>${p.detectedRows?`<input type="number" min="1" value="${p.detectedRows}" style="width:82px;padding:7px" onchange="setDetectedRows(this.value)">`:''}`:''}</div><div class="completed-chip"><span class="dot" style="background:${p.currentRowColor}"></span>Atual <span class="dot" style="background:${p.completedColor};margin-left:8px"></span>Concluídas</div></div></section><div class="extra-tools"><details><summary>Mais ferramentas do projeto</summary><div class="extra-grid"><div class="compact-card"><h3>⏱ Tempo</h3><div id="liveTime" style="font-size:24px;font-weight:800">${formatTime(p.seconds)}</div><div class="row" style="margin-top:8px">${p.running?'<button class="btn" onclick="pauseTimer()">⏸ Pausar</button>':'<button class="btn" onclick="startTimer()">▶ Iniciar</button>'}<button class="btn secondary" onclick="resetTimer()">Zerar</button></div></div><div class="compact-card"><h3>📝 Anotações</h3><textarea oninput="updateNotes(this.value)">${esc(p.notes)}</textarea></div><div class="compact-card"><h3>▦ Métricas da grade</h3><div class="small">Total estimado de quadrados/pontos do projeto</div><div id="graphAreaTotal" style="font-size:24px;font-weight:800;margin-top:4px">${getProjectPointTotal(p).toLocaleString('pt-BR')}</div><div class="small" style="margin-top:5px">Soma das larguras detectadas carreira por carreira.</div></div><div class="compact-card"><h3>⚙ Projeto</h3><button class="btn secondary" onclick="exportProject()">Exportar</button> <button class="btn danger" onclick="deleteProject()">Excluir</button></div></div></details></div></div>`;if(p.running){clearInterval(timerHandle);timerHandle=setInterval(()=>{addTime(p);updateLive()},1000)}if(isPdfPattern(p))renderPdfPage(pdfPageCache[p.id]?.page||1);else setTimeout(positionRowHighlight,20)}
 
 function dataUrlToUint8Array(dataUrl){
  const comma=dataUrl.indexOf(',');
@@ -668,78 +710,62 @@ function findGridLines(canvas){
  const confidence=Math.max(0,Math.min(1,centers.length/(rows+1)));
  return {lines:centers,pitch,rows,confidence,first,last};
 }
+function findGridColumns(canvas){
+ const ctx=canvas.getContext('2d',{willReadFrequently:true});
+ const w=canvas.width,h=canvas.height;if(w<50||h<50)return null;
+ const sx=Math.max(1,Math.floor(w/1400)),sy=Math.max(1,Math.floor(h/1000));
+ const data=ctx.getImageData(0,0,w,h).data,scores=[];
+ for(let x=0;x<w;x+=sx){
+   let hit=0,samples=0;
+   for(let y=Math.floor(h*.02);y<Math.floor(h*.98);y+=sy*2){
+     const i=(y*w+x)*4,r=data[i],g=data[i+1],b=data[i+2];
+     const spread=Math.max(r,g,b)-Math.min(r,g,b);
+     if(r>=175&&r<=252&&g>=175&&g<=252&&b>=175&&b<=252&&spread<18)hit++;
+     samples++;
+   }
+   scores.push({x,score:samples?hit/samples:0});
+ }
+ const threshold=Math.max(.60,percentile(scores.map(v=>v.score),78)),groups=[];
+ for(const pt of scores){
+   if(pt.score<threshold)continue;const last=groups[groups.length-1];
+   if(last&&pt.x-last[last.length-1].x<=Math.max(3,sx*2))last.push(pt);else groups.push([pt]);
+ }
+ let centers=groups.filter(g=>g.length<=Math.max(12,Math.ceil(12/sx))).map(g=>g.reduce((best,v)=>v.score>best.score?v:best,g[0]).x).sort((a,b)=>a-b);
+ if(centers.length<4)return null;
+ const gaps=[];for(let i=1;i<centers.length;i++){const d=centers[i]-centers[i-1];if(d>3)gaps.push(d)}if(!gaps.length)return null;
+ const base=percentile(gaps,45),near=gaps.filter(d=>d>=base*.75&&d<=base*1.35),pitch=near.length?near.reduce((a,b)=>a+b,0)/near.length:base;
+ if(!isFinite(pitch)||pitch<4)return null;
+ let first=centers[0],last=centers[centers.length-1];
+ function edgeFit(a,b){const n=(b-a)/pitch;return Math.abs(n-Math.round(n))}
+ while(centers.length>4&&edgeFit(first,last)>.22){const dropLast=edgeFit(first,centers[centers.length-2]),dropFirst=edgeFit(centers[1],last);if(dropLast<=dropFirst){centers.pop();last=centers[centers.length-1]}else{centers.shift();first=centers[0]}}
+ const columns=Math.max(1,Math.round((last-first)/pitch)),confidence=Math.max(0,Math.min(1,centers.length/(columns+1)));
+ return{lines:centers,pitch,columns,confidence,first,last};
+}
 function percentile(a,p){if(!a.length)return 0;const s=[...a].sort((x,y)=>x-y),i=(s.length-1)*p/100;const lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?s[lo]:s[lo]+(s[hi]-s[lo])*(i-lo)}
 function median(a){const n=a.length,s=[...a].sort((x,y)=>x-y);return n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2}
 
-async function getPatternAnalysisCanvas(){
- const p=project();
- if(!p?.pattern)throw new Error('Nenhum arquivo carregado');
-
- if(isPdfPattern(p)){
-   await renderPdfPage(pdfPageCache[p.id]?.page||1);
-   const canvas=document.getElementById('pdfCanvas');
-   if(!canvas)throw new Error('Canvas do PDF não encontrado');
-   return canvas;
- }
-
- if(isImagePattern(p)){
-   let img=document.getElementById('patternImg');
-   if(!img){
-     img=new Image();
-     img.src=p.pattern.data;
-     await new Promise((resolve,reject)=>{
-       if(img.complete && img.naturalWidth)resolve();
-       else {img.onload=resolve;img.onerror=reject;}
-     });
-   }else if(!img.complete || !img.naturalWidth){
-     await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;});
-   }
-
-   const maxWidth=1600;
-   const scale=Math.min(1,maxWidth/img.naturalWidth);
-   const canvas=document.createElement('canvas');
-   canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
-   canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
-   const ctx=canvas.getContext('2d',{willReadFrequently:true});
-   ctx.drawImage(img,0,0,canvas.width,canvas.height);
-   return canvas;
- }
-
- throw new Error('Formato não suportado');
-}
-
-async function detectPatternRows(){
- const p=project();
- if(!canDetectPattern(p)){toast('Adicione um PDF, PNG, JPG ou WEBP primeiro.');return}
+async function detectPdfRows(){
+ const p=project(); if(!isPdfPattern(p)){toast('Adicione um PDF primeiro.');return}
+ const result=document.getElementById('detectResult');
+ if(result)result.textContent='🔎 Analisando a grade do PDF…';
  try{
-   toast(isPdfPattern(p)?'🔎 Analisando PDF…':'🔎 Analisando imagem…');
-   const canvas=await getPatternAnalysisCanvas();
+   await renderPdfPage(1);
+   const canvas=document.getElementById('pdfCanvas');
+   if(!canvas)throw new Error('Canvas não encontrado');
    const found=findGridLines(canvas);
    if(!found)throw new Error('Grade não identificada');
-
    p.detectedRows=found.rows;
-   p.gridTop=found.first;
-   p.gridBottom=found.last;
-   p.gridPitch=found.pitch;
-   p.gridSourceHeight=canvas.height;
+   p.gridTop=found.first; p.gridBottom=found.last; p.gridPitch=found.pitch;
    p.totalRows=found.rows;
-
-   const c=(p.counters||[]).find(x=>x.name==='Carreiras');
-   if(c)c.target=found.rows;
-
+   const c=p.counters.find(x=>x.name==='Carreiras'); if(c)c.target=found.rows;
    save();
    renderWork();
-   toast(`✅ Detectadas ${found.rows} carreiras`);
+   toast(`Detectadas ${found.rows} carreiras`);
  }catch(e){
+   if(result)result.innerHTML='⚠️ Não consegui identificar a grade automaticamente. <button class="btn secondary" onclick="manualDetect()">Definir manualmente</button>';
    console.error(e);
-   toast('⚠️ Não consegui identificar a grade. Use a correção manual.');
-   const n=prompt('Não consegui detectar automaticamente. Quantas carreiras tem o gráfico?',p.totalRows||'');
-   if(n)setDetectedRows(n);
  }
 }
-
-// Mantido por compatibilidade com projetos/atalhos antigos.
-async function detectPdfRows(){ return detectPatternRows(); }
 function manualDetect(){
  const p=project();const n=prompt('Quantas carreiras tem o gráfico?',p.totalRows||'');
  if(n)setDetectedRows(n);
@@ -796,58 +822,525 @@ document.addEventListener('keydown',e=>{
    return;
  }
 });
+
+
+/* ================= V6.3 ESTÁVEL ================= */
+let pointMarkMode=false;
+let voiceShouldRun=false;
+
+function normalizeProject(p){
+  if(!p)return p;
+  // Migração não destrutiva de concluídas antigas (array -> objeto colorido).
+  if(Array.isArray(p.completedRows)){
+    const migrated={};
+    p.completedRows.forEach(item=>{
+      const row=Number(typeof item==='object'?item.row:item);
+      if(row>0)migrated[String(row)]=(typeof item==='object'&&item.color)||p.completedColor||'#2fb36f';
+    });
+    p.completedRows=migrated;
+  } else if(!p.completedRows || typeof p.completedRows!=='object') p.completedRows={};
+  if(typeof p.autoCompletePrevious==='boolean' && typeof p.autoMarkCompleted!=='boolean') p.autoMarkCompleted=p.autoCompletePrevious;
+  if(typeof p.autoMarkCompleted!=='boolean')p.autoMarkCompleted=true;
+  p.autoCompletePrevious=p.autoMarkCompleted;
+  if(!p.completedColor)p.completedColor='#2fb36f';
+  if(!p.currentRowColor)p.currentRowColor='#1877f2';
+  if(!p.direction)p.direction='bottom-up';
+  if(!Array.isArray(p.counters))p.counters=[];
+  if(!Array.isArray(p.reminders))p.reminders=[];
+  if(!Array.isArray(p.sections))p.sections=[];
+  if(!Array.isArray(p.pointMarks))p.pointMarks=[];
+  if(!p.pointColor)p.pointColor='#ff8a00';
+  if(!Number.isFinite(Number(p.zoom)))p.zoom=1;
+  p.zoom=Math.max(.25,Math.min(4,Number(p.zoom)||1));
+  if(typeof p.centerPattern!=='boolean')p.centerPattern=false;
+  if(!Number.isFinite(Number(p.activePoint))||Number(p.activePoint)<1)p.activePoint=1;
+  if(!Number.isFinite(Number(p.detectedPoints))||Number(p.detectedPoints)<0)p.detectedPoints=0;
+  if(!p.rowPointRanges||typeof p.rowPointRanges!=='object'||Array.isArray(p.rowPointRanges))p.rowPointRanges={};
+  if(p.pointDirection!=='right-to-left'&&p.pointDirection!=='left-to-right')p.pointDirection='left-to-right';
+  return p;
+}
+
+function setAutoMarkCompleted(v){const p=project();if(!p)return;p.autoMarkCompleted=!!v;p.autoCompletePrevious=p.autoMarkCompleted;save()}
+function goToRow(){const p=project();if(!p)return;const el=document.getElementById('jumpRow');const n=Math.round(Number(el?.value));if(!Number.isFinite(n))return;const max=Math.max(1,Number(p.totalRows||p.detectedRows||n));setRowAbsolute(Math.max(1,Math.min(max,n)))}
+function setRowAbsolute(n){const p=project();if(!p)return;const delta=Number(n)-Number(p.row||0);changeRow(delta)}
+function setDetectedRows(v){
+ const p=project();if(!p)return;
+ const n=Math.max(1,Math.round(Number(v)||0));if(!n)return;
+ // Mantém a geometria detectada intacta. Alterar manualmente a quantidade não deve
+ // destruir o passo real (altura de 1 quadradinho) encontrado na imagem.
+ p.totalRows=n;
+ if(!Number.isFinite(Number(p.detectedRows))||Number(p.detectedRows)<=0)p.detectedRows=n;
+ p.manualRowsOverride=(n!==Number(p.gridDetectedRows||p.detectedRows||n));
+ if(p.row>n)p.row=n;
+ const c=(p.counters||[]).find(x=>x.name==='Carreiras');if(c)c.target=n;
+ save();rerenderPreserveViewer();toast('Total atualizado para '+n+' carreiras');
+}
+
+function markThroughCurrent(){const p=project();if(!p)return;ensureProjectUiState(p);const end=Math.max(0,Math.min(Number(p.totalRows||p.detectedRows||Infinity),Number(p.row)||0));for(let r=1;r<=end;r++){const k=String(r);if(!p.completedRows[k])p.completedRows[k]=p.completedColor;}save();updateViewerOverlays();refreshCompactProgress();toast(end?`Carreiras 1–${end} marcadas como concluídas`:'Selecione uma carreira primeiro')}
+function toggleCompletedRow(row){const p=project();if(!p)return;ensureProjectUiState(p);row=Math.max(1,Math.min(Number(p.totalRows||row),Number(row)||1));const k=String(row);if(p.completedRows[k])delete p.completedRows[k];else p.completedRows[k]=p.completedColor;save();updateViewerOverlays();refreshCompactProgress();toast(p.completedRows[k]?'Carreira '+row+' concluída':'Carreira '+row+' reaberta')}
+function clearCompleted(){const p=project();if(!p||!confirm('Remover todas as marcações de concluído?'))return;p.completedRows={};save();updateViewerOverlays();refreshCompactProgress()}
+
+function changeRow(delta){
+  const p=project();if(!p)return;
+  const wrap=document.getElementById('pdfPatternWrap')||document.querySelector('.viewer-card .pattern-wrap');
+  const top=wrap?.scrollTop||0,left=wrap?.scrollLeft||0;
+  const oldRow=Number(p.row||0),maxRow=Math.max(0,Number(p.totalRows||p.detectedRows||0));
+  let next=Math.max(0,oldRow+Number(delta||0));if(maxRow>0)next=Math.min(maxRow,next);
+  if(next>oldRow && p.autoMarkCompleted && oldRow>0){const k=String(oldRow);if(!p.completedRows[k])p.completedRows[k]=p.completedColor;}
+  p.row=next;
+  // Cada carreira tem seu próprio eixo horizontal. Ao trocar de carreira, começa no primeiro quadradinho.
+  if(next!==oldRow)p.activePoint=1;
+  const c=(p.counters||[]).find(x=>x.name==='Carreiras');if(c)c.value=next;
+  const reminder=(p.reminders||[]).find(x=>Number(x.row)===next);if(reminder&&next>oldRow)toast('🔔 '+reminder.text);
+  save();refreshCompactProgress();updateViewerOverlays();
+  if(wrap){wrap.scrollTop=top;wrap.scrollLeft=left;requestAnimationFrame(()=>{wrap.scrollTop=top;wrap.scrollLeft=left})}
+}
+
+function refreshCompactProgress(){const p=project();if(!p)return;const strong=document.querySelector('.mini-counter strong');if(strong)strong.textContent=p.row||0;const count=completedCount(p);const pct=p.totalRows?Math.min(100,count/p.totalRows*100):0;document.querySelectorAll('[data-progress-fill]').forEach(e=>e.style.width=pct+'%');const text=document.getElementById('progressSummary');if(text)text.textContent=`${count} de ${p.totalRows||'?'} concluídas · ${Math.round(pct)}%`;const chip=document.getElementById('completedCountChip');if(chip)chip.textContent=count+' concluídas';const btn=document.getElementById('completeCurrentBtn');if(btn){const done=!!p.completedRows[String(p.row)];btn.textContent=done?'↩ Reabrir atual':'✓ Concluir atual';btn.classList.toggle('secondary',done)}}
+
+function getPatternTarget(){return document.getElementById('pdfCanvas')||document.getElementById('patternImg')}
+function getDisplayMetrics(p){const target=getPatternTarget();if(!target)return null;const sourceW=target.tagName==='CANVAS'?target.width:(target.naturalWidth||target.width);const sourceH=target.tagName==='CANVAS'?target.height:(target.naturalHeight||target.height);const displayW=target.getBoundingClientRect().width||target.clientWidth;const displayH=target.getBoundingClientRect().height||target.clientHeight;if(!sourceW||!sourceH||!displayW||!displayH)return null;return{target,sourceW,sourceH,displayW,displayH,sx:displayW/sourceW,sy:displayH/sourceH}}
+function getRowGeometry(p,row){
+ const m=getDisplayMetrics(p);if(!m)return null;
+ const total=Math.max(1,Number(p.totalRows)||Number(p.detectedRows)||1);
+ row=Math.max(1,Math.min(total,Number(row)||1));
+ const dir=getDirection(p);
+ const sourceH=Number(p.gridSourceHeight)||m.sourceH;
+ const sy=m.displayH/sourceH;
+ let gridTop=Number(p.gridTop),gridBottom=Number(p.gridBottom),pitch=Number(p.gridPitch);
+ let topSource,heightSource;
+
+ // Regra principal: uma carreira = exatamente UM passo da grade detectada.
+ // Não usamos a altura total da imagem, pois margens/cortes fariam uma faixa ocupar
+ // dois ou três quadradinhos. A carreira 1 é ancorada na borda REAL da grade.
+ if(Number.isFinite(gridTop)&&Number.isFinite(gridBottom)&&gridBottom>gridTop&&Number.isFinite(pitch)&&pitch>0){
+   const detectedTotal=Math.max(1,Number(p.gridDetectedRows||p.detectedRows)||Math.round((gridBottom-gridTop)/pitch));
+
+   // Se o usuário não alterou o total, preserva o pitch detectado literalmente.
+   // Em correção manual, redistribuímos somente dentro dos limites REAIS da grade.
+   if(p.manualRowsOverride && total!==detectedTotal){
+     pitch=(gridBottom-gridTop)/total;
+   }
+   heightSource=pitch;
+   if(dir==='bottom-up'){
+     // Carreira 1 = quadradinho imediatamente acima da última linha inferior da grade.
+     topSource=gridBottom-row*pitch;
+   }else{
+     // Carreira 1 = quadradinho imediatamente abaixo da primeira linha superior da grade.
+     topSource=gridTop+(row-1)*pitch;
+   }
+
+   // Limita à área detectada da grade, nunca às margens da imagem.
+   topSource=Math.max(gridTop,Math.min(topSource,gridBottom-heightSource));
+ }else{
+   // Fallback somente quando ainda não há grade detectada.
+   const fallbackPitch=sourceH/total;
+   heightSource=fallbackPitch;
+   topSource=dir==='bottom-up'?(sourceH-row*fallbackPitch):((row-1)*fallbackPitch);
+ }
+
+ const top=topSource*sy;
+ const height=Math.max(1,heightSource*sy);
+ return{top,height,width:m.displayW,sourceTop:topSource,sourceHeight:heightSource};
+}
+
+function getVisualRowIndex(p,row){
+ const total=Math.max(1,Number(p.totalRows)||Number(p.detectedRows)||1);
+ row=Math.max(1,Math.min(total,Math.round(Number(row)||1)));
+ return getDirection(p)==='bottom-up'?(total-row+1):row;
+}
+function getPointDirection(p){
+ return p?.pointDirection==='right-to-left'?'right-to-left':'left-to-right';
+}
+function setPointDirection(dir){
+ const p=project();if(!p)return;
+ p.pointDirection=dir==='right-to-left'?'right-to-left':'left-to-right';
+ // A direção muda apenas a leitura/numeração. A matriz detectada permanece intacta.
+ p.activePoint=1;
+ save();refreshPointCounter();positionActivePoint();renderPointRuler();
+ toast(p.pointDirection==='right-to-left'?'Pontos: direita → esquerda':'Pontos: esquerda → direita');
+}
+function getRowPointInfo(p,row){
+ if(!p)return{left:0,right:0,pitch:0,total:0,firstCol:0,lastCol:-1};
+ const visualIndex=getVisualRowIndex(p,row);
+ const r=p.rowPointRanges?.[String(visualIndex)];
+ if(r&&Number(r.total)>0&&Number.isFinite(Number(r.pitch))&&Number(r.pitch)>0&&Number.isFinite(Number(r.left))){
+   const pitch=Number(r.pitch),total=Math.max(1,Math.round(Number(r.total)));
+   const left=Number(r.left),right=Number.isFinite(Number(r.right))?Number(r.right):(left+total*pitch);
+   return{left,right,pitch,total,visualIndex,firstCol:Number(r.firstCol)||0,lastCol:Number.isFinite(Number(r.lastCol))?Number(r.lastCol):(Number(r.firstCol)||0)+total-1};
+ }
+ // Fallback global somente quando ainda não há faixa específica para a carreira.
+ const left=Number(p.gridLeft)||0,right=Number(p.gridRight)||0,pitch=Number(p.gridPitchX)||0,total=Math.max(0,Number(p.detectedPoints)||0);
+ return{left,right,pitch,total,visualIndex,firstCol:0,lastCol:Math.max(-1,total-1)};
+}
+function getPointGeometry(p,point,row=p.row){
+ const m=getDisplayMetrics(p);if(!m)return null;
+ const total=getCurrentRowPointTotal(p);
+ if(!total)return null;
+
+ point=Math.max(1,Math.min(total,Math.round(Number(point)||1)));
+
+ // V7.6.1 — ajuste exclusivamente horizontal.
+ // Equivalente à lógica de atualizarInterface() fornecida pelo usuário:
+ // largura visível ÷ total de pontos da carreira atual.
+ // Nenhum cálculo vertical, detecção de carreira ou marcação concluída é alterado.
+ const cellWidth=m.displayW/total;
+ const cellIndex=getPointDirection(p)==='right-to-left'?(total-point):(point-1);
+ const left=cellIndex*cellWidth;
+
+ return{
+   left,
+   width:Math.max(1,cellWidth),
+   sourceLeft:(left/m.displayW)*(Number(p.gridSourceWidth)||m.sourceW),
+   sourceWidth:(cellWidth/m.displayW)*(Number(p.gridSourceWidth)||m.sourceW),
+   total,
+   cellIndex
+ };
+}
+function getCurrentRowPointTotal(p){
+ if(!p||Number(p.row)<1)return 0;
+ return Math.max(0,Number(getRowPointInfo(p,p.row).total)||0);
+}
+function clampActivePoint(p){
+ if(!p)return 1;const total=getCurrentRowPointTotal(p);
+ if(!total){p.activePoint=1;return 1}
+ p.activePoint=Math.max(1,Math.min(total,Math.round(Number(p.activePoint)||1)));return p.activePoint;
+}
+function setDetectedPoints(v){
+ const p=project();if(!p)return;const n=Math.max(1,Math.round(Number(v)||0));if(!n)return;
+ if(Number.isFinite(Number(p.gridLeft))&&Number.isFinite(Number(p.gridRight))&&Number(p.gridRight)>Number(p.gridLeft))p.gridPitchX=(Number(p.gridRight)-Number(p.gridLeft))/n;
+ p.detectedPoints=n;
+ // Correção manual é fallback global; não apaga larguras específicas já detectadas por carreira.
+ clampActivePoint(p);save();updateViewerOverlays();refreshPointCounter();toast('Largura horizontal de referência atualizada para '+n+' pontos');
+}
+function changePoint(delta){
+ const p=project();if(!p)return;const total=getCurrentRowPointTotal(p);
+ if(!total){toast('Detecte a grade para contar os pontos desta carreira.');return}
+ p.activePoint=Math.max(1,Math.min(total,clampActivePoint(p)+Number(delta||0)));save();refreshPointCounter();positionActivePoint();renderPointRuler();
+}
+function getProjectPointTotal(p){
+ if(!p)return 0;
+ const rows=Math.max(0,Number(p.totalRows||p.detectedRows)||0);
+ if(!rows)return 0;
+ let sum=0,hasSpecific=false;
+ for(let logical=1;logical<=rows;logical++){
+   const info=getRowPointInfo(p,logical);
+   if(p.rowPointRanges?.[String(info.visualIndex)])hasSpecific=true;if(info.total>0)sum+=info.total;
+ }
+ return hasSpecific?sum:(Math.max(0,Number(p.detectedPoints)||0)*rows);
+}
+function refreshPointCounter(){
+ const p=project();if(!p)return;clampActivePoint(p);
+ const total=getCurrentRowPointTotal(p),row=Math.max(0,Number(p.row)||0);
+ const summary=document.getElementById('activePointSummary');
+ if(summary)summary.textContent=row&&total?`Carreira ${row} | Ponto ${p.activePoint} de ${total}`:`Carreira ${row||0} | Pontos não detectados`;
+ const val=document.getElementById('activePointValue');if(val)val.textContent=total?p.activePoint:0;
+ const tot=document.getElementById('activePointTotal');if(tot)tot.textContent=total?' / '+total:'';
+ const area=document.getElementById('graphAreaTotal');if(area)area.textContent=getProjectPointTotal(p).toLocaleString('pt-BR');
+}
+function positionActivePoint(){
+ const p=project(),cell=document.getElementById('pointActiveCell');if(!p||!cell)return;
+ const row=Number(p.row)||0;if(row<1){cell.style.display='none';return}
+ const rg=getRowGeometry(p,row),pg=getPointGeometry(p,clampActivePoint(p),row);
+ if(!rg||!pg){cell.style.display='none';return}
+ Object.assign(cell.style,{display:'block',left:pg.left+'px',top:rg.top+'px',width:pg.width+'px',height:rg.height+'px'});
+ const lab=document.getElementById('pointActiveLabel');if(lab)lab.textContent='P'+p.activePoint;
+}
+function renderPointRuler(){
+ const p=project(),layer=document.getElementById('pointRulerLayer'),stage=document.getElementById('patternStage'),m=p&&getDisplayMetrics(p);
+ if(!p||!layer||!stage||!m)return;
+ const row=Number(p.row)||0,total=getCurrentRowPointTotal(p);
+ layer.innerHTML='';
+ if(row<1||!total){layer.style.display='none';stage.classList.remove('point-ruler-enabled');return}
+ stage.classList.add('point-ruler-enabled');
+ layer.style.display='block';
+ layer.style.top=m.displayH+'px';
+ layer.style.width=m.displayW+'px';
+ const active=clampActivePoint(p);
+ for(let point=1;point<=total;point++){
+   const g=getPointGeometry(p,point,row);if(!g)continue;
+   const cell=document.createElement('div');
+   cell.className='point-ruler-cell'+(point===active?' active':'');
+   cell.textContent=point===1?'P1':String(point);
+   cell.style.left=g.left+'px';
+   cell.style.width=g.width+'px';
+   cell.title=`Ponto ${point} de ${total}`;
+   layer.appendChild(cell);
+ }
+}
+function syncOverlaySize(){const p=project(),m=p&&getDisplayMetrics(p);if(!m)return;['completedRowsLayer','rowHighlight','pointMarksLayer','pointActiveLayer'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.width=m.displayW+'px'});const pts=document.getElementById('pointMarksLayer');if(pts)pts.style.height=m.displayH+'px';const ruler=document.getElementById('pointRulerLayer');if(ruler){ruler.style.top=m.displayH+'px';ruler.style.width=m.displayW+'px'}}
+function updateViewerOverlays(){syncOverlaySize();renderCompletedRows();positionRowHighlight();renderPointMarks();positionActivePoint();renderPointRuler();refreshPointCounter()}
+
+function renderCompletedRows(){const p=project(),layer=document.getElementById('completedRowsLayer');if(!p||!layer)return;layer.innerHTML='';Object.keys(p.completedRows).map(Number).filter(r=>r>=1).sort((a,b)=>a-b).forEach(r=>{const g=getRowGeometry(p,r);if(!g)return;const color=p.completedRows[String(r)]||p.completedColor,band=document.createElement('div');band.className='completed-row-band';Object.assign(band.style,{top:g.top+'px',height:g.height+'px',width:g.width+'px',right:'auto',background:hexToRgba(color,.22)});const lab=document.createElement('span');lab.className='completed-row-label';lab.textContent=String(r);lab.style.background=color;band.appendChild(lab);layer.appendChild(band)})}
+function positionRowHighlight(){const p=project(),band=document.getElementById('rowHighlight'),label=document.getElementById('rowHighlightLabel');if(!p||!band)return;const total=Math.max(0,Number(p.totalRows)||Number(p.detectedRows)||0),row=Math.max(0,Math.min(total||Infinity,Number(p.row)||0));if(!total||row<1){band.style.display='none';renderCompletedRows();return}const g=getRowGeometry(p,row);if(!g){band.style.display='none';return}Object.assign(band.style,{top:g.top+'px',height:g.height+'px',width:g.width+'px',right:'auto',display:'block',background:hexToRgba(p.currentRowColor,.22),borderColor:p.currentRowColor});if(label){label.textContent='Carreira '+row;label.style.background=p.currentRowColor}renderCompletedRows();renderPointMarks()}
+
+// Centralização horizontal V7.1: somente layout/scroll. Não toca na geometria lógica.
+function applyHorizontalCenter(recenter=false){
+  const p=project();
+  const wrap=document.querySelector('.viewer-card .pattern-wrap');
+  const stage=document.getElementById('patternStage');
+  const btn=document.getElementById('centerPatternBtn');
+  if(!p||!wrap||!stage)return;
+  const active=!!p.centerPattern;
+  wrap.classList.toggle('horizontal-centered',active);
+  if(btn){
+    btn.classList.toggle('active-tool',active);
+    btn.textContent=active?'↔ Centralizado':'↔ Centralizar';
+    btn.setAttribute('aria-pressed',active?'true':'false');
+  }
+  requestAnimationFrame(()=>{
+    const target=getPatternTarget();
+    if(!target)return;
+    const targetWidth=target.getBoundingClientRect().width||target.clientWidth||0;
+    // Quando cabe inteiro, o CSS com margens automáticas faz a centralização.
+    // Não existe deslocamento lógico: target + overlays continuam no mesmo stage.
+    if(active && targetWidth<=wrap.clientWidth+1){
+      wrap.scrollLeft=0;
+    }else if(active && recenter){
+      // Quando é maior que a janela, mostra inicialmente o centro do gráfico,
+      // mantendo o usuário livre para rolar horizontalmente depois.
+      wrap.scrollLeft=Math.max(0,(wrap.scrollWidth-wrap.clientWidth)/2);
+    }
+    updateViewerOverlays();
+  });
+}
+function toggleHorizontalCenter(){
+  const p=project();if(!p||!p.pattern)return;
+  p.centerPattern=!p.centerPattern;
+  save();
+  applyHorizontalCenter(!!p.centerPattern);
+  toast(p.centerPattern?'Gráfico centralizado horizontalmente':'Centralização horizontal desativada');
+}
+
+function setZoom(z){const p=project();if(!p||!p.pattern)return;const wrap=document.querySelector('.viewer-card .pattern-wrap'),pos=wrap?{top:wrap.scrollTop,left:wrap.scrollLeft}:null;p.zoom=Math.max(.25,Math.min(4,Number(z)||1));save();applyZoom();if(pos&&wrap){requestAnimationFrame(()=>{wrap.scrollTop=pos.top;wrap.scrollLeft=pos.left})}}
+function zoomBy(step){const p=project();if(p)setZoom((Number(p.zoom)||1)+step)}
+function fitZoom(){const p=project(),target=getPatternTarget(),wrap=document.querySelector('.viewer-card .pattern-wrap');if(!p||!target||!wrap)return;const naturalW=target.tagName==='CANVAS'?target.width:(target.naturalWidth||target.width);if(!naturalW)return;setZoom(Math.max(.25,Math.min(4,(wrap.clientWidth-4)/naturalW)))}
+function applyZoom(){const p=project(),target=getPatternTarget();if(!p||!target)return;const z=Math.max(.25,Math.min(4,Number(p.zoom)||1));const w=target.tagName==='CANVAS'?target.width:(target.naturalWidth||target.width),h=target.tagName==='CANVAS'?target.height:(target.naturalHeight||target.height);if(w&&h){target.style.width=(w*z)+'px';target.style.height=(h*z)+'px'}const read=document.getElementById('zoomReadout');if(read)read.textContent=Math.round(z*100)+'%';requestAnimationFrame(()=>{updateViewerOverlays();applyHorizontalCenter(false)})}
+
+function togglePointMode(){pointMarkMode=!pointMarkMode;const stage=document.getElementById('patternStage'),btn=document.getElementById('pointModeBtn');stage?.classList.toggle('point-mode',pointMarkMode);btn?.classList.toggle('active-tool',pointMarkMode);if(btn)btn.textContent=pointMarkMode?'🟠 Marcando pontos':'🟠 Marcar pontos'}
+function setPointColor(v){const p=project();if(!p)return;p.pointColor=v||'#ff8a00';save()}
+function clearPointMarks(){const p=project();if(!p||!p.pointMarks.length)return;if(!confirm('Remover todos os pontos marcados?'))return;p.pointMarks=[];save();renderPointMarks()}
+function onPatternPointClick(e){if(!pointMarkMode)return;const p=project(),target=getPatternTarget();if(!p||!target)return;if(e.target?.classList?.contains('point-mark'))return;const rect=target.getBoundingClientRect();if(e.clientX<rect.left||e.clientX>rect.right||e.clientY<rect.top||e.clientY>rect.bottom)return;const x=(e.clientX-rect.left)/rect.width,y=(e.clientY-rect.top)/rect.height;p.pointMarks.push({id:uid(),x:Math.max(0,Math.min(1,x)),y:Math.max(0,Math.min(1,y)),color:p.pointColor});save();renderPointMarks()}
+function removePointMark(id,e){e?.stopPropagation();const p=project();if(!p)return;p.pointMarks=p.pointMarks.filter(m=>m.id!==id);save();renderPointMarks()}
+function renderPointMarks(){const p=project(),layer=document.getElementById('pointMarksLayer'),m=p&&getDisplayMetrics(p);if(!p||!layer||!m)return;layer.style.width=m.displayW+'px';layer.style.height=m.displayH+'px';layer.innerHTML='';p.pointMarks.forEach(mark=>{const d=document.createElement('button');d.type='button';d.className='point-mark';d.title='Clique para remover';d.style.left=(Number(mark.x)*m.displayW)+'px';d.style.top=(Number(mark.y)*m.displayH)+'px';d.style.background=mark.color||p.pointColor;d.onclick=e=>removePointMark(mark.id,e);layer.appendChild(d)})}
+
+function isGridGrayPixel(data,w,x,y){
+ x=Math.max(0,Math.min(w-1,Math.round(x)));y=Math.max(0,Math.round(y));
+ const i=(y*w+x)*4,r=data[i],g=data[i+1],b=data[i+2],spread=Math.max(r,g,b)-Math.min(r,g,b);
+ return r>=165&&r<=253&&g>=165&&g<=253&&b>=165&&b<=253&&spread<22;
+}
+function isDarkPatternPixel(data,w,x,y){
+ x=Math.max(0,Math.min(w-1,Math.round(x)));y=Math.max(0,Math.round(y));
+ const i=(y*w+x)*4,r=data[i],g=data[i+1],b=data[i+2],a=data[i+3];
+ if(a<80)return false;
+ // Preto/cinza escuro do desenho. O interior da célula é amostrado longe das linhas da grade.
+ return r<115&&g<115&&b<115;
+}
+function cellHasUsefulContent(data,w,h,left,top,pitchX,pitchY){
+ const x1=Math.max(0,Math.floor(left+pitchX*.16)),x2=Math.min(w-1,Math.ceil(left+pitchX*.84));
+ const y1=Math.max(0,Math.floor(top+pitchY*.16)),y2=Math.min(h-1,Math.ceil(top+pitchY*.84));
+ if(x2<x1||y2<y1)return false;
+ const stepX=Math.max(1,Math.floor(pitchX/9)),stepY=Math.max(1,Math.floor(pitchY/9));
+ let dark=0,samples=0;
+ for(let y=y1;y<=y2;y+=stepY){
+   for(let x=x1;x<=x2;x+=stepX){samples++;if(isDarkPatternPixel(data,w,x,y))dark++;}
+ }
+ // Uma célula preenchida/símbolo preto ocupa uma parcela relevante do interior.
+ return samples>0 && dark/samples>=.10;
+}
+function detectPointRangesByRow(canvas,foundRows,foundX){
+ if(!canvas||!foundRows||!foundX)return{};
+ const ctx=canvas.getContext('2d',{willReadFrequently:true}),w=canvas.width,h=canvas.height;
+ const data=ctx.getImageData(0,0,w,h).data;
+ const rows=Math.max(1,foundRows.rows),pitchY=Number(foundRows.pitch),pitchX=Number(foundX.pitch);
+ const globalCols=Math.max(1,Math.round(Number(foundX.columns))),ranges={};
+ for(let visual=1;visual<=rows;visual++){
+   const rowTop=Number(foundRows.first)+(visual-1)*pitchY;
+   const occupied=[];
+   for(let col=0;col<globalCols;col++){
+     const cellLeft=Number(foundX.first)+col*pitchX;
+     if(cellHasUsefulContent(data,w,h,cellLeft,rowTop,pitchX,pitchY))occupied.push(col);
+   }
+   if(occupied.length){
+     const firstCol=occupied[0],lastCol=occupied[occupied.length-1],total=lastCol-firstCol+1;
+     ranges[String(visual)]={
+       left:Number(foundX.first)+firstCol*pitchX,
+       right:Number(foundX.first)+(lastCol+1)*pitchX,
+       pitch:pitchX,total,firstCol,lastCol,occupiedCount:occupied.length
+     };
+   }else{
+     // Linha sem conteúdo preto detectável: não inventa pontos. Isso evita P1 fora da área útil.
+     ranges[String(visual)]={left:0,right:0,pitch:pitchX,total:0,firstCol:0,lastCol:-1,occupiedCount:0};
+   }
+ }
+ return ranges;
+}
+
+function applyDetection(p,found,sourceH,foundX=null,sourceW=0,rowRanges=null){
+ p.detectedRows=found.rows;
+ p.gridDetectedRows=found.rows;
+ p.gridTop=found.first;
+ p.gridBottom=found.last;
+ p.gridPitch=found.pitch;
+ p.gridSourceHeight=sourceH;
+ p.gridLines=Array.isArray(found.lines)?found.lines.slice():[];
+ if(foundX){
+   p.detectedPoints=foundX.columns;
+   p.gridLeft=foundX.first;p.gridRight=foundX.last;p.gridPitchX=foundX.pitch;
+   p.gridSourceWidth=sourceW;p.gridColumnLines=Array.isArray(foundX.lines)?foundX.lines.slice():[];
+   p.rowPointRanges=rowRanges&&typeof rowRanges==='object'?rowRanges:{};
+   p.activePoint=1;clampActivePoint(p);
+ }
+ p.totalRows=found.rows;
+ p.manualRowsOverride=false;
+ if(p.row>p.totalRows)p.row=p.totalRows;
+ const c=(p.counters||[]).find(x=>x.name==='Carreiras');if(c)c.target=found.rows;
+ save();
+}
+async function detectPatternRows(){
+ const p=project();if(!p?.pattern){toast('Adicione uma receita primeiro.');return}
+ try{
+   let canvas;
+   if(isPdfPattern(p)){
+     await renderPdfPage(pdfPageCache[p.id]?.page||1);canvas=document.getElementById('pdfCanvas');
+   }else{
+     const img=document.getElementById('patternImg');if(!img)throw new Error('Imagem não encontrada');
+     if(!img.complete)await new Promise((res,rej)=>{img.onload=res;img.onerror=rej});
+     canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;canvas.getContext('2d',{willReadFrequently:true}).drawImage(img,0,0);
+   }
+   if(!canvas)throw new Error('Canvas não encontrado');
+   const found=findGridLines(canvas);if(!found)throw new Error('Grade horizontal não identificada');
+   const foundX=findGridColumns(canvas);
+   const rowRanges=foundX?detectPointRangesByRow(canvas,found,foundX):{};
+   applyDetection(p,found,canvas.height,foundX,canvas.width,rowRanges);rerenderPreserveViewer();
+   toast(foundX?`Detectadas ${found.rows} carreiras; limites de pontos analisados carreira por carreira`:`Detectadas ${found.rows} carreiras; pontos horizontais não identificados`);
+ }catch(e){console.error(e);toast('Não consegui detectar automaticamente. Você pode informar o total de carreiras manualmente.')}
+}
+async function detectPdfRows(){return detectPatternRows()}
+
+function startVoice(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('Seu navegador não oferece reconhecimento de voz.');return}stopVoice();voiceShouldRun=true;voiceRecognition=new SR();voiceRecognition.lang='pt-BR';voiceRecognition.continuous=true;voiceRecognition.interimResults=false;voiceRecognition.onresult=e=>{const text=e.results[e.results.length-1][0].transcript.toLowerCase();if(text.includes('voltar dez')||text.includes('volta dez'))changeRow(-10);else if(/\bdez\b/.test(text))changeRow(10);else if(text.includes('próxima')||text.includes('proxima')||text.includes('avançar')||text.includes('avancar'))changeRow(1);else if(text.includes('volta')||text.includes('anterior'))changeRow(-1);else if(text.includes('concluir'))toggleCompletedRow(project()?.row||1)};voiceRecognition.onerror=e=>{if(['not-allowed','service-not-allowed','audio-capture'].includes(e.error)){voiceShouldRun=false;toast('Não foi possível usar o microfone.')}};voiceRecognition.onend=()=>{if(voiceShouldRun&&voiceRecognition){setTimeout(()=>{try{voiceRecognition?.start()}catch(e){}},350)}};try{voiceRecognition.start();const e=document.getElementById('voiceStatus');if(e)e.textContent='🎙️ Ouvindo…'}catch(e){voiceShouldRun=false;toast('Não foi possível iniciar o reconhecimento de voz.')}}
+function stopVoice(){voiceShouldRun=false;if(voiceRecognition){voiceRecognition.onend=null;try{voiceRecognition.stop()}catch(e){}voiceRecognition=null}const e=document.getElementById('voiceStatus');if(e)e.textContent='Desativado'}
+
+function renderPattern(p){if(!p.pattern)return `<div class="empty">Nenhum padrão adicionado.<br><small>Você pode colocar uma imagem ou PDF da receita aqui.</small></div>`;const overlays=`<div class="completed-rows-layer" id="completedRowsLayer"></div><div class="row-highlight" id="rowHighlight"><span class="row-highlight-label" id="rowHighlightLabel"></span></div><div class="point-marks-layer" id="pointMarksLayer"></div><div class="point-active-layer" id="pointActiveLayer"><div class="point-active-cell" id="pointActiveCell"><span class="point-active-label" id="pointActiveLabel"></span></div></div><div class="point-ruler-layer" id="pointRulerLayer"></div>`;if(isPdfPattern(p))return `<div class="pattern-wrap" id="pdfPatternWrap"><div class="pattern-stage" id="patternStage" onclick="onPatternPointClick(event)"><canvas id="pdfCanvas"></canvas>${overlays}</div></div><div class="row" style="margin-top:10px;justify-content:center"><button id="pdfPrevBtn" class="btn secondary" onclick="pdfPrevPage()">◀ Página anterior</button><span id="pdfPageInfo" class="small">Página 1</span><button id="pdfNextBtn" class="btn secondary" onclick="pdfNextPage()">Próxima página ▶</button></div>`;return `<div class="pattern-wrap"><div class="pattern-stage" id="patternStage" onclick="onPatternPointClick(event)"><img id="patternImg" src="${p.pattern.data}" alt="Padrão" onload="applyZoom()">${overlays}</div></div>`}
+
+function renderWork(){const p=project();if(!p){showPage('home');return}document.getElementById('work-title').textContent=p.name;document.getElementById('work-subtitle').textContent=`${p.type} · criado em ${new Date(p.created).toLocaleDateString('pt-BR')}`;const pct=p.totalRows?Math.min(100,(completedCount(p)/p.totalRows)*100):0,isDone=!!p.completedRows[String(p.row)],patternName=p.pattern?.name||'Nenhuma receita carregada';document.getElementById('work-content').innerHTML=`<div class="work-shell"><aside class="work-rail"><div class="compact-card"><h3>Carreira atual</h3><div class="mini-counter"><strong>${p.row||0}</strong> <span>${p.totalRows?' / '+p.totalRows:''}</span></div><div class="nav-grid"><button class="btn secondary" onclick="changeRow(-10)">−10</button><button class="btn secondary" onclick="changeRow(-1)">−</button><button class="btn" onclick="changeRow(1)">＋</button><button class="btn secondary" onclick="changeRow(10)">+10</button></div><div class="jump-row"><input id="jumpRow" type="number" min="1" max="${p.totalRows||9999}" placeholder="Ir para..." onkeydown="if(event.key==='Enter')goToRow()"><button class="btn secondary" onclick="goToRow()">Ir</button></div></div><div class="compact-card"><h3>Ponto na carreira</h3><div id="activePointSummary" style="font-size:15px;font-weight:800;line-height:1.35;margin:2px 0 10px">${p.row&&getCurrentRowPointTotal(p)?`Carreira ${p.row} | Ponto ${clampActivePoint(p)} de ${getCurrentRowPointTotal(p)}`:`Carreira ${p.row||0} | Pontos não detectados`}</div><div class="mini-counter hidden"><strong id="activePointValue">${getCurrentRowPointTotal(p)?clampActivePoint(p):0}</strong><span id="activePointTotal">${getCurrentRowPointTotal(p)?' / '+getCurrentRowPointTotal(p):''}</span></div><div class="point-counter-grid"><button class="btn secondary" onclick="changePoint(-1)">← Ponto</button><button class="btn secondary" onclick="changePoint(1)">Ponto →</button></div><div class="small" style="margin-top:10px;margin-bottom:6px">Início da contagem</div><div class="direction-grid"><button class="btn ${getPointDirection(p)==='left-to-right'?'':'secondary'}" onclick="setPointDirection('left-to-right')">Esquerda → direita</button><button class="btn ${getPointDirection(p)==='right-to-left'?'':'secondary'}" onclick="setPointDirection('right-to-left')">Direita → esquerda</button></div></div><div class="compact-card"><h3>Marcações</h3><button id="completeCurrentBtn" class="btn ${isDone?'secondary':''} mark-action" onclick="toggleCompletedRow(${p.row||1})">${isDone?'↩ Reabrir atual':'✓ Concluir atual'}</button><button class="btn secondary mark-action" onclick="markThroughCurrent()">✓ Marcar até a atual</button><div class="switch-row" style="margin-top:10px"><input id="autoMark" type="checkbox" ${p.autoMarkCompleted?'checked':''} onchange="setAutoMarkCompleted(this.checked)"><label for="autoMark" style="margin:0;color:inherit">Ao avançar, concluir a anterior</label></div><div class="color-row" style="margin-top:10px"><div><div class="small">Cor das próximas concluídas</div><span class="completed-chip"><span class="dot" style="background:${p.completedColor}"></span><span id="completedCountChip">${completedCount(p)} concluídas</span></span></div><input type="color" value="${p.completedColor}" onchange="setCompletedColor(this.value)"></div><div class="row" style="margin-top:8px"><button class="btn secondary" style="flex:1;padding:8px" onclick="recolorCompleted()">Aplicar a todas</button><button class="btn ghost" style="padding:8px" onclick="clearCompleted()">Limpar</button></div></div><div class="compact-card"><h3>Sentido</h3><div class="direction-grid"><button class="btn ${getDirection(p)==='bottom-up'?'':'secondary'}" onclick="setDirection('bottom-up')">⬆ Baixo → cima</button><button class="btn ${getDirection(p)==='top-down'?'':'secondary'}" onclick="setDirection('top-down')">⬇ Cima → baixo</button></div></div><div class="compact-card"><h3>Progresso</h3><div class="progress"><div data-progress-fill style="width:${pct}%"></div></div><div id="progressSummary" class="small" style="margin-top:7px">${completedCount(p)} de ${p.totalRows||'?'} concluídas · ${Math.round(pct)}%</div></div><div class="compact-card"><h3>Atalhos</h3><div class="small"><span class="shortcut">Espaço</span> próxima · <span class="shortcut">← →</span> navegar<br><span class="shortcut">Z</span> voltar · <span class="shortcut">T</span> tempo</div></div></aside><section class="viewer-card" id="viewerPanel"><div class="viewer-toolbar"><div class="viewer-file">📄 ${esc(patternName)}</div><div class="viewer-actions"><button class="btn secondary" onclick="zoomBy(-.25)">− Zoom</button><span id="zoomReadout" class="zoom-readout">${Math.round(p.zoom*100)}%</span><button class="btn secondary" onclick="zoomBy(.25)">+ Zoom</button><button class="btn secondary" onclick="fitZoom()">Ajustar</button><button id="centerPatternBtn" class="btn secondary ${p.centerPattern?'active-tool':''}" aria-pressed="${p.centerPattern?'true':'false'}" onclick="toggleHorizontalCenter()">${p.centerPattern?'↔ Centralizado':'↔ Centralizar'}</button><button id="pointModeBtn" class="btn secondary" onclick="togglePointMode()">🟠 Marcar pontos</button><input type="color" value="${p.pointColor}" title="Cor dos pontos" style="width:38px;height:34px;padding:2px" onchange="setPointColor(this.value)"><button class="btn ghost" onclick="clearPointMarks()">Limpar pontos</button><button class="btn secondary" onclick="startVoice()">🎙 Ativar voz</button><button class="btn ghost" onclick="stopVoice()">Parar voz</button><span id="voiceStatus" class="voice-state">Desativado</span><button id="focusBtn" class="btn secondary" onclick="toggleViewerFocus()">⛶ Modo foco</button><button class="btn secondary" onclick="toggleViewerFullscreen()">⛶ Tela cheia</button><label class="btn secondary" style="cursor:pointer">Trocar arquivo<input type="file" accept="image/*,.pdf,application/pdf" hidden onchange="uploadPattern(this)"></label>${p.pattern?'<button class="btn danger" onclick="removePattern()">Remover</button>':''}</div></div>${renderPattern(p)}<div class="viewer-footer"><div class="detect-inline"><strong style="font-size:12px">Detecção:</strong><span class="small">${p.detectedRows?'✅ '+p.detectedRows+' carreiras'+(p.detectedPoints?' · pontos por carreira analisados':''):'não realizada'}</span>${p.pattern?`<button class="btn" onclick="detectPatternRows()">🔎 ${p.detectedRows?'Detectar novamente':'Detectar carreiras'}</button>`:''}<input class="detect-number" type="number" min="1" value="${p.totalRows||p.detectedRows||''}" placeholder="Total" onchange="setDetectedRows(this.value)"><span class="small">Largura ref.:</span><input class="detect-number" type="number" min="1" value="${p.detectedPoints||''}" placeholder="Largura" title="Largura horizontal global de referência; cada carreira usa sua própria faixa quando detectada" onchange="setDetectedPoints(this.value)"></div><div class="completed-chip"><span class="dot" style="background:${p.currentRowColor}"></span>Atual <span class="dot" style="background:${p.completedColor};margin-left:8px"></span>Concluídas</div></div></section><div class="extra-tools"><details><summary>Mais ferramentas do projeto</summary><div class="extra-grid"><div class="compact-card"><h3>⏱ Tempo</h3><div id="liveTime" style="font-size:24px;font-weight:800">${formatTime(p.seconds)}</div><div class="row" style="margin-top:8px">${p.running?'<button class="btn" onclick="pauseTimer()">⏸ Pausar</button>':'<button class="btn" onclick="startTimer()">▶ Iniciar</button>'}<button class="btn secondary" onclick="resetTimer()">Zerar</button></div></div><div class="compact-card"><h3>📝 Anotações</h3><textarea oninput="updateNotes(this.value)">${esc(p.notes)}</textarea></div><div class="compact-card"><h3>▦ Métricas da grade</h3><div class="small">Total estimado de quadrados/pontos do projeto</div><div id="graphAreaTotal" style="font-size:24px;font-weight:800;margin-top:4px">${getProjectPointTotal(p).toLocaleString('pt-BR')}</div><div class="small" style="margin-top:5px">Soma das larguras detectadas carreira por carreira.</div></div><div class="compact-card"><h3>⚙ Projeto</h3><button class="btn secondary" onclick="exportProject()">Exportar</button> <button class="btn danger" onclick="deleteProject()">Excluir</button></div></div></details></div></div>`;if(p.running){clearInterval(timerHandle);timerHandle=setInterval(()=>{addTime(p);updateLive()},1000)}if(isPdfPattern(p))renderPdfPage(pdfPageCache[p.id]?.page||1).then(()=>{applyZoom();setTimeout(()=>applyHorizontalCenter(!!p.centerPattern),0)});else setTimeout(()=>{applyZoom();applyHorizontalCenter(!!p.centerPattern)},20)}
+
+// Reaplica zoom/overlays após PDF renderizar.
+const _renderPdfPageV62=renderPdfPage;
+renderPdfPage=async function(pageNo=1){const result=await _renderPdfPageV62(pageNo);const p=project();if(p?.pattern)setTimeout(applyZoom,0);return result}
+window.addEventListener('resize',()=>setTimeout(updateViewerOverlays,50));
+
+
+// V7.3: Shift + setas navega pelos pontos da carreira atual sem alterar atalhos verticais.
+document.addEventListener('keydown',e=>{
+ const tag=(e.target?.tagName||'').toLowerCase();if(tag==='input'||tag==='textarea'||tag==='select'||e.target?.isContentEditable)return;
+ if(document.getElementById('page-work')?.classList.contains('hidden'))return;
+ if(e.shiftKey&&e.key==='ArrowRight'){e.preventDefault();e.stopImmediatePropagation();changePoint(1)}
+ else if(e.shiftKey&&e.key==='ArrowLeft'){e.preventDefault();e.stopImmediatePropagation();changePoint(-1)}
+},true);
+
+
+
+/* ================= V7.5 — ARQUITETURA VISUAL COM RÉGUAS EXTERNAS ================= */
+function renderPattern(p){
+ if(!p.pattern)return `<div class="empty">Nenhum padrão adicionado.<br><small>Você pode colocar uma imagem ou PDF da receita aqui.</small></div>`;
+ const overlays=`<div class="completed-rows-layer" id="completedRowsLayer"></div><div class="row-highlight" id="rowHighlight"></div><div class="point-marks-layer" id="pointMarksLayer"></div><div class="point-active-layer" id="pointActiveLayer"><div class="point-active-cell" id="pointActiveCell"></div></div>`;
+ const externalStart=`<div class="pattern-shell-v75" id="patternShell"><div class="row-ruler-external-v75" id="rowRulerLayer" aria-label="Régua de carreiras"></div>`;
+ const externalEnd=`<div class="point-ruler-external-v75" id="pointRulerLayer" aria-label="Régua de pontos"></div></div>`;
+ if(isPdfPattern(p)){
+   return `<div class="pattern-wrap" id="pdfPatternWrap">${externalStart}<div class="pattern-stage" id="patternStage" onclick="onPatternPointClick(event)"><canvas id="pdfCanvas"></canvas>${overlays}</div>${externalEnd}</div></div><div class="row" style="margin-top:10px;justify-content:center"><button id="pdfPrevBtn" class="btn secondary" onclick="pdfPrevPage()">◀ Página anterior</button><span id="pdfPageInfo" class="small">Página 1</span><button id="pdfNextBtn" class="btn secondary" onclick="pdfNextPage()">Próxima página ▶</button></div>`;
+ }
+ return `<div class="pattern-wrap">${externalStart}<div class="pattern-stage" id="patternStage" onclick="onPatternPointClick(event)"><img id="patternImg" src="${p.pattern.data}" alt="Padrão" onload="onPatternLoadedV75()">${overlays}</div>${externalEnd}</div></div>`;
+}
+
+function onPatternLoadedV75(){
+ applyZoom();
+ requestAnimationFrame(()=>{updateViewerOverlays();applyHorizontalCenter(false)});
+}
+
+/* V7.5 não altera a origem/matriz de pontos da V7.4.
+   A régua externa consome getPointGeometry() exatamente como o marcador ativo. */
+function renderPointRuler(){
+ const p=project(),layer=document.getElementById('pointRulerLayer'),m=p&&getDisplayMetrics(p);
+ if(!p||!layer||!m)return;
+ const row=Number(p.row)||0,total=getCurrentRowPointTotal(p);
+ layer.innerHTML='';
+ layer.style.top=m.displayH+'px';layer.style.width=m.displayW+'px';
+ if(row<1||!total){layer.style.display='none';return}
+ layer.style.display='block';const active=clampActivePoint(p);
+ for(let point=1;point<=total;point++){
+   const g=getPointGeometry(p,point,row);if(!g)continue;
+   const cell=document.createElement('div');cell.className='point-ruler-cell'+(point===active?' active':'');
+   cell.textContent=point===1?'P1':String(point);cell.style.left=g.left+'px';cell.style.width=g.width+'px';cell.title=`Ponto ${point} de ${total}`;
+   layer.appendChild(cell);
+ }
+}
+
+function renderRowRuler(){
+ const p=project(),layer=document.getElementById('rowRulerLayer'),m=p&&getDisplayMetrics(p);if(!p||!layer||!m)return;
+ const total=Math.max(0,Number(p.totalRows)||Number(p.detectedRows)||0),active=Math.max(0,Number(p.row)||0);
+ layer.innerHTML='';layer.style.height=m.displayH+'px';if(!total){layer.style.display='none';return}layer.style.display='block';
+ const probe=getRowGeometry(p,Math.max(1,active||1)),rowPx=Math.max(1,probe?.height||1),labelStep=Math.max(1,Math.ceil(16/rowPx));
+ for(let row=1;row<=total;row++){
+   const g=getRowGeometry(p,row);if(!g)continue;const cell=document.createElement('div');cell.className='row-ruler-cell-v75'+(row===active?' active':'');
+   cell.style.top=g.top+'px';cell.style.height=g.height+'px';
+   if(row===active||row===1||row===total||((row-1)%labelStep===0))cell.textContent=String(row);
+   cell.title='Carreira '+row;layer.appendChild(cell);
+ }
+}
+
+function positionActivePoint(){
+ const p=project(),cell=document.getElementById('pointActiveCell');if(!p||!cell)return;
+ const row=Number(p.row)||0;if(row<1){cell.style.display='none';return}
+ const rg=getRowGeometry(p,row),pg=getPointGeometry(p,clampActivePoint(p),row);if(!rg||!pg){cell.style.display='none';return}
+ Object.assign(cell.style,{display:'block',left:pg.left+'px',top:rg.top+'px',width:pg.width+'px',height:rg.height+'px'});
+}
+
+function syncOverlaySize(){
+ const p=project(),m=p&&getDisplayMetrics(p);if(!m)return;
+ ['completedRowsLayer','rowHighlight','pointMarksLayer','pointActiveLayer'].forEach(id=>{const e=document.getElementById(id);if(e){e.style.width=m.displayW+'px';e.style.height=m.displayH+'px'}});
+ const ruler=document.getElementById('pointRulerLayer');if(ruler){ruler.style.top=m.displayH+'px';ruler.style.width=m.displayW+'px'}
+ const rr=document.getElementById('rowRulerLayer');if(rr)rr.style.height=m.displayH+'px';
+}
+
+function updateViewerOverlays(){syncOverlaySize();renderCompletedRows();positionRowHighlight();renderPointMarks();positionActivePoint();renderPointRuler();renderRowRuler();refreshPointCounter()}
+
+/* Marcação de concluídas continua transparente, mas sem números dentro da imagem. */
+function renderCompletedRows(){
+ const p=project(),layer=document.getElementById('completedRowsLayer');if(!p||!layer)return;layer.innerHTML='';
+ Object.keys(p.completedRows).map(Number).filter(r=>r>=1).sort((a,b)=>a-b).forEach(r=>{const g=getRowGeometry(p,r);if(!g)return;const color=p.completedRows[String(r)]||p.completedColor,band=document.createElement('div');band.className='completed-row-band';Object.assign(band.style,{top:g.top+'px',height:g.height+'px',width:g.width+'px',right:'auto',background:hexToRgba(color,.18)});layer.appendChild(band)});
+}
+
+function positionRowHighlight(){
+ const p=project(),band=document.getElementById('rowHighlight');if(!p||!band)return;
+ const total=Math.max(0,Number(p.totalRows)||Number(p.detectedRows)||0),row=Math.max(0,Math.min(total||Infinity,Number(p.row)||0));
+ if(!total||row<1){band.style.display='none';renderCompletedRows();renderRowRuler();return}
+ const g=getRowGeometry(p,row);if(!g){band.style.display='none';return}
+ Object.assign(band.style,{top:g.top+'px',height:g.height+'px',width:g.width+'px',right:'auto',display:'block',background:hexToRgba(p.currentRowColor,.14),borderColor:p.currentRowColor});
+ renderCompletedRows();renderPointMarks();renderRowRuler();
+}
+
+function applyHorizontalCenter(recenter=false){
+ const p=project(),wrap=document.querySelector('.viewer-card .pattern-wrap'),shell=document.getElementById('patternShell'),btn=document.getElementById('centerPatternBtn');if(!p||!wrap||!shell)return;
+ const active=!!p.centerPattern;wrap.classList.toggle('horizontal-centered',active);
+ if(btn){btn.classList.toggle('active-tool',active);btn.textContent=active?'↔ Centralizado':'↔ Centralizar';btn.setAttribute('aria-pressed',active?'true':'false')}
+ requestAnimationFrame(()=>{if(active&&shell.getBoundingClientRect().width<=wrap.clientWidth+1){wrap.scrollLeft=0}else if(active&&recenter){wrap.scrollLeft=Math.max(0,(wrap.scrollWidth-wrap.clientWidth)/2)}updateViewerOverlays()});
+}
+
+function fitZoom(){
+ const p=project(),target=getPatternTarget(),wrap=document.querySelector('.viewer-card .pattern-wrap');if(!p||!target||!wrap)return;
+ const naturalW=target.tagName==='CANVAS'?target.width:(target.naturalWidth||target.width);if(!naturalW)return;
+ setZoom(Math.max(.25,Math.min(4,(wrap.clientWidth-58)/naturalW)));
+}
+
+/* Garante atualização das réguas externas também após cada renderização de PDF. */
+const _renderPdfPageV75=renderPdfPage;
+renderPdfPage=async function(pageNo=1){const result=await _renderPdfPageV75(pageNo);requestAnimationFrame(()=>{applyZoom();updateViewerOverlays();applyHorizontalCenter(false)});return result};
+
+/* V7.6 — pontos por carreira com extremos úteis + direção independente esquerda/direita. */
 window.addEventListener('beforeunload',()=>{const p=project();if(p&&p.running){addTime(p);p.running=false;save()}});
 renderProjects();
 applySidebarState();
-
-
-// === PWA ===
-let deferredInstallPrompt=null;
-window.addEventListener('beforeinstallprompt',e=>{
- e.preventDefault();
- deferredInstallPrompt=e;
- const b=document.getElementById('pwaInstallBanner');
- if(b)b.style.display='block';
-});
-window.addEventListener('appinstalled',()=>{
- deferredInstallPrompt=null;
- const b=document.getElementById('pwaInstallBanner');
- if(b)b.style.display='none';
- toast?.('Meu Crochê instalado!');
-});
-function hideInstallBanner(){
- const b=document.getElementById('pwaInstallBanner');
- if(b)b.style.display='none';
-}
-document.addEventListener('click',async e=>{
- if(e.target?.id!=='pwaInstallBtn')return;
- if(!deferredInstallPrompt){
-   toast?.('No Android/Chrome, use o menu ⋮ e “Adicionar à tela inicial”.');
-   return;
- }
- deferredInstallPrompt.prompt();
- await deferredInstallPrompt.userChoice;
- deferredInstallPrompt=null;
- hideInstallBanner();
-});
-if('serviceWorker' in navigator){
- window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.error));
-}
-
 </script>
-
-<div id="mobileBottomBar" class="mobile-bottom-bar">
-  <button class="btn secondary" onclick="changeRow(-1)" aria-label="Carreira anterior">−</button>
-  <button class="btn" onclick="changeRow(1)" aria-label="Próxima carreira">＋ Próxima</button>
-  <button class="btn secondary" onclick="toggleCurrentComplete?.()" aria-label="Concluir carreira">✓</button>
-</div>
-
-<div id="pwaInstallBanner" class="pwa-install-banner">
- <div class="row">
-   <div><strong>📱 Instalar Meu Crochê</strong><div class="small">Use como aplicativo no celular.</div></div>
-   <div class="row"><button class="btn secondary" onclick="hideInstallBanner()">Agora não</button><button class="btn" id="pwaInstallBtn">Instalar</button></div>
- </div>
-</div>
-
 </body>
 </html>
