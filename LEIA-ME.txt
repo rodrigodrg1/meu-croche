@@ -1,26 +1,24 @@
-MEU CROCHÊ V7.6.7 — APP MOBILE ESTÁVEL
+MEU CROCHÊ V7.6.7 APP MOBILE V2
 
-Base usada:
-- meu-croche-v7-6-7-ponto-inicial-alternado(4).html
+CORREÇÃO PRINCIPAL
+- Detecção em celular agora usa uma cópia de análise limitada a ~5 megapixels.
+- As coordenadas detectadas são convertidas novamente para o tamanho original.
+- Isso reduz falhas de memória do canvas/getImageData em celulares.
+- Se ainda falhar, o aviso agora mostra o motivo real (ex.: grade não identificada).
 
-O JavaScript principal da V7.6.7 foi preservado.
-A adaptação foi feita principalmente no CSS e nos arquivos PWA.
-
-NO GITHUB PAGES:
-Substitua:
-- index.html
-- manifest.webmanifest
-- sw.js
-
-Mantenha os arquivos já existentes:
-- icon-192.png
-- icon-512.png
-
-TESTES EXECUTADOS:
-- sintaxe JavaScript;
+PRESERVADO
 - criação de projeto;
-- renderização da tela do projeto;
-- detecção de grade sintética;
 - contagem de carreiras;
-- contagem horizontal de pontos;
-- avanço/retorno de ponto.
+- contagem de pontos por carreira;
+- alternância esquerda/direita;
+- ponto ativo e réguas;
+- zoom e marcações.
+
+INTERFACE
+- gráfico e detecção aparecem antes dos cartões secundários;
+- campos manuais lado a lado com rótulos claros;
+- botões maiores para toque;
+- navegação inferior mantida.
+
+GITHUB: substitua index.html, manifest.webmanifest e sw.js.
+Mantenha icon-192.png e icon-512.png.
