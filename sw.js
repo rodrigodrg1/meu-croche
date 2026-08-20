@@ -1,5 +1,4 @@
-const CACHE_NAME = 'meu-croche-v7-6-7-final-20260820';
-
+const CACHE_NAME = 'meu-croche-v7-6-7-app-20260820';
 const APP_SHELL = [
   './',
   './index.html',
@@ -18,24 +17,17 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(
-        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-      ))
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', event => {
-  const request = event.request;
+  if (event.request.method !== 'GET') return;
 
-  if (request.method !== 'GET') return;
-
-  const url = new URL(request.url);
-
-  // Navegação: prioriza a versão nova da rede e usa cache só se estiver offline.
-  if (request.mode === 'navigate') {
+  if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
+      fetch(event.request)
         .then(response => {
           const copy = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
@@ -46,24 +38,16 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Arquivos do próprio app: cache com atualização em segundo plano.
-  if (url.origin === self.location.origin) {
-    event.respondWith(
-      caches.match(request).then(cached => {
-        const network = fetch(request).then(response => {
-          if (response && response.ok) {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
-          }
-          return response;
-        }).catch(() => cached);
-
-        return cached || network;
-      })
-    );
-    return;
-  }
-
-  // Recursos externos (ex.: PDF.js): usa rede normalmente.
-  event.respondWith(fetch(request));
+  event.respondWith(
+    caches.match(event.request).then(cached => {
+      const network = fetch(event.request).then(response => {
+        if (response && response.ok && event.request.url.startsWith(self.location.origin)) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+        }
+        return response;
+      }).catch(() => cached);
+      return cached || network;
+    })
+  );
 });

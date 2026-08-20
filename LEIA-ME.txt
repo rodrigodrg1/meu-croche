@@ -1,21 +1,25 @@
-MEU CROCHÊ - PWA
+MEU CROCHÊ V7.6.7 — ARQUIVOS PARA GITHUB PAGES / APP
 
-Arquivos:
+Substitua no repositório:
 - index.html
 - manifest.webmanifest
 - sw.js
+
+Mantenha os ícones que já existem no seu repositório:
 - icon-192.png
 - icon-512.png
 
-Para instalar como aplicativo no Android, o PWA precisa ser servido por HTTPS
-(ou localhost durante testes). Abrir o index.html diretamente por file:// não
-permite registrar o Service Worker.
+Esta versão parte do HTML V7.6.7 enviado e preserva a lógica de:
+- detecção de carreiras;
+- contagem horizontal por carreira;
+- Ponto X de Y;
+- início alternado esquerda/direita;
+- régua horizontal de pontos;
+- ponto ativo alinhado à grade.
 
-Teste rápido no computador:
-1. Abra um terminal nesta pasta.
-2. Rode: python -m http.server 8080
-3. Abra http://localhost:8080 no navegador.
-
-No celular:
-Hospede esta pasta em um serviço HTTPS (GitHub Pages, Netlify, Cloudflare Pages etc.)
-e abra o endereço no Chrome. Depois use "Instalar app" / "Adicionar à tela inicial".
+Adaptações para o app/mobile:
+- contador "Carreira X | Ponto Y de N" visível abaixo da detecção;
+- botões ← Ponto / Ponto → no mobile;
+- "Largura ref." e o campo numérico ficam juntos;
+- layout mobile do visualizador;
+- cache do service worker atualizado para esta versão.
