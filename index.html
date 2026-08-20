@@ -2,13 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#9a5c70">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="manifest" href="./manifest.webmanifest">
-<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Meu Crochê — Contador de Carreiras</title>
 <style>
 :root{
@@ -213,443 +207,98 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .dark .point-ruler-external-v75 .point-ruler-cell{background:var(--card);color:#8ec1ff}
 .dark .row-ruler-cell-v75.active{background:rgba(24,119,242,.22);color:#9bc9ff}
 
-/* =====================================================================
-   V7.6.7 APP MOBILE ESTÁVEL
-   Apenas apresentação/responsividade. A lógica V7.6.7 permanece intacta.
-   ===================================================================== */
-@media(max-width:760px){
-  html,body{min-height:100%;overscroll-behavior-y:none}
-  body{padding:0 0 calc(72px + env(safe-area-inset-bottom));}
-  .app{display:block!important;min-height:100dvh}
+/* ================= MOBILE APP LAYOUT — V7.6.7 =================
+   Camada exclusivamente visual. Preserva IDs, eventos, detecção e geometria lógica. */
+.mobile-crochet-dock{display:none}
+@media (max-width:760px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  body{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
+  .app,.app.sidebar-collapsed{display:block;min-height:100vh}
+  main,body.work-mode main{width:100%;max-width:none;margin:0;padding:8px 8px 12px}
 
-  /* Barra inferior estilo aplicativo */
-  .app>aside{
-    position:fixed!important;
-    left:0!important; right:0!important; bottom:0!important; top:auto!important;
-    height:64px!important;
-    padding:6px 8px calc(6px + env(safe-area-inset-bottom))!important;
-    background:var(--card)!important;
-    border:0!important;
-    border-top:1px solid var(--line)!important;
-    box-shadow:0 -8px 28px rgba(0,0,0,.10);
-    z-index:300!important;
-  }
-  .app>aside .brand,
-  .app>aside .sidebar-toggle,
-  .app>aside .side-bottom{display:none!important}
-  .app>aside .nav{
-    height:100%;
-    display:grid!important;
-    grid-template-columns:repeat(3,1fr)!important;
-    gap:6px!important;
-    overflow:visible!important;
-  }
-  .app>aside .nav button{
-    margin:0!important;
-    padding:6px 3px!important;
-    min-height:48px;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    text-align:center!important;
-    border-radius:12px!important;
-    font-size:11px!important;
-    line-height:1.15!important;
-    white-space:nowrap!important;
-  }
+  /* Menu lateral vira gaveta; recolhido mantém somente o botão para reabrir. */
+  #appRoot>aside{position:fixed;z-index:80;left:0;top:0;width:min(82vw,290px);height:100dvh;padding:18px 14px;background:var(--card);border-right:1px solid var(--line);border-bottom:0;box-shadow:0 12px 40px rgba(0,0,0,.18);transition:transform .2s ease;overflow:auto}
+  #appRoot.sidebar-collapsed>aside{display:block;position:fixed;left:8px;top:8px;width:48px;height:48px;padding:0;overflow:visible;border:0;background:transparent;box-shadow:none;transform:none}
+  #appRoot.sidebar-collapsed>aside .brand,#appRoot.sidebar-collapsed>aside .nav,#appRoot.sidebar-collapsed>aside .side-bottom{display:none!important}
+  #appRoot.sidebar-collapsed>aside .sidebar-toggle{display:flex;position:fixed;left:8px;top:8px;right:auto;transform:none;width:46px;height:46px;border-radius:14px;box-shadow:var(--shadow);background:var(--card);font-size:0}
+  #appRoot.sidebar-collapsed>aside .sidebar-toggle::after{content:'☰';font-size:23px;color:var(--accent)}
+  #appRoot:not(.sidebar-collapsed)>aside .sidebar-toggle{position:absolute;right:12px;top:12px}
+  #appRoot:not(.sidebar-collapsed)>aside .nav{display:flex;flex-direction:column;overflow:visible;margin-top:8px}
+  #appRoot:not(.sidebar-collapsed)>aside .nav button{font-size:15px;white-space:normal}
+  #appRoot:not(.sidebar-collapsed)>aside .side-bottom{position:static;margin-top:22px}
 
-  main{
-    width:100%!important;
-    max-width:none!important;
-    margin:0!important;
-    padding:10px 10px 8px!important;
-  }
+  #page-home>.top,#page-tools>.top{padding-left:54px;align-items:flex-start;gap:8px;margin:4px 0 12px}
+  #page-home>.top h1,#page-tools>.top h1{font-size:23px}
+  #page-home>.top .subtitle,#page-tools>.top .subtitle{font-size:12px}
+  #page-home>.top>.btn{padding:10px 12px;font-size:13px;white-space:nowrap}
+  .grid{gap:10px}.card{padding:14px;border-radius:14px}
+  .formgrid{grid-template-columns:1fr;gap:10px}
+  .modal{padding:10px;align-items:flex-start;overflow:auto}.modal-box{margin-top:10px;padding:16px;border-radius:16px}
+  button,.btn,input,select{min-height:44px}
 
-  /* Cabeçalho compacto */
-  .top{margin-bottom:10px!important;gap:8px!important;align-items:flex-start!important}
-  h1{font-size:22px!important;line-height:1.15!important}
-  .subtitle{font-size:12px!important;line-height:1.3}
-  #page-work>.top>.row{gap:5px!important;justify-content:flex-end}
-  #page-work>.top>.row .btn,
-  #page-work>.top>.row label.btn{padding:8px 9px!important;font-size:11px!important}
+  /* Área de trabalho: gráfico primeiro, controles secundários depois. */
+  body.work-mode #page-work>.top{display:flex;padding-left:54px;margin:3px 0 8px;min-height:48px}
+  body.work-mode #page-work>.top>div:first-child{min-width:0;flex:1}
+  body.work-mode #page-work>.top h1{font-size:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body.work-mode #page-work>.top .subtitle{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body.work-mode #page-work>.top>.row{display:none}
+  .work-shell{display:flex;flex-direction:column;gap:8px}
+  .viewer-card{order:1;border-radius:12px}
+  .work-rail{order:2;display:grid;grid-template-columns:1fr 1fr;gap:8px;position:static;max-height:none;overflow:visible;padding:0}
+  .work-rail .compact-card{padding:10px;border-radius:12px;box-shadow:none}
+  .work-rail .compact-card:nth-child(1),.work-rail .compact-card:nth-child(2){grid-column:span 1}
+  .work-rail .compact-card:nth-child(n+3){grid-column:1/-1}
+  .work-rail .compact-card h3{font-size:11px;margin-bottom:7px}
+  .mini-counter{padding:0 0 7px}.mini-counter strong{font-size:31px}
+  .nav-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}.nav-grid .btn{min-height:40px;padding:7px 2px;font-size:12px}
+  .jump-row{display:none}
+  .point-counter-grid .btn,.direction-grid .btn{min-height:42px;padding:7px 4px;font-size:12px}
+  #activePointSummary{font-size:13px!important;margin-bottom:7px!important}
 
-  /* Home */
-  .grid{gap:10px!important}
-  .project-card{grid-column:span 12!important;padding:14px!important;border-radius:14px!important}
-  .project-card h2{font-size:18px;margin:10px 0 7px}
-  .card{padding:14px!important}
-  .formgrid{grid-template-columns:1fr!important;gap:10px!important}
+  .viewer-toolbar{padding:7px 8px;gap:6px;align-items:center}
+  .viewer-file{max-width:100%;width:100%;font-size:11px}
+  .viewer-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%;gap:5px}
+  .viewer-actions .btn,.viewer-actions label.btn{min-height:38px;padding:6px 3px;font-size:10px;display:flex;align-items:center;justify-content:center;text-align:center}
+  .viewer-actions .zoom-readout{min-width:0;display:flex;align-items:center;justify-content:center;font-size:11px}
+  .viewer-actions input[type=color]{width:100%!important;height:38px!important;min-height:38px}
 
-  /* Novo projeto como painel inferior, acima da navegação */
-  .modal{
-    z-index:1000!important;
-    align-items:flex-end!important;
-    padding:0!important;
-  }
-  .modal-box{
-    width:100%!important;
-    max-width:none!important;
-    max-height:92dvh!important;
-    overflow:auto!important;
-    border-radius:22px 22px 0 0!important;
-    padding:18px 16px calc(22px + env(safe-area-inset-bottom))!important;
-  }
-  .modal-box .top{position:sticky;top:0;background:var(--card);z-index:2;padding-bottom:5px}
-  .modal-box .row:last-child{
-    position:sticky;
-    bottom:0;
-    background:var(--card);
-    padding-top:10px;
-  }
-  .modal-box .row:last-child .btn{min-height:44px}
+  /* Maior área possível para o gráfico no celular. */
+  .viewer-card .pattern-wrap{height:calc(100dvh - 245px);min-height:360px;max-height:none;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:#fafafa}
+  .pattern-shell-v75{--row-ruler-w:38px;--point-ruler-h:28px}
+  .row-ruler-external-v75{width:36px}.row-ruler-cell-v75{width:32px;right:2px;font-size:8px;padding-right:3px}
+  .point-ruler-external-v75{height:28px}.point-ruler-external-v75 .point-ruler-cell{height:26px;font-size:9px}
+  .viewer-footer{padding:7px 8px;gap:6px;align-items:stretch}
+  .detect-inline{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:5px;width:100%;align-items:center}
+  .detect-inline strong{font-size:10px!important}.detect-inline .small{font-size:10px;min-width:0}
+  .detect-inline .btn{min-height:38px;padding:6px 7px;font-size:10px}
+  .detect-inline .detect-number{width:62px!important;min-height:38px;padding:5px!important;font-size:12px}
+  .detect-inline span.small:last-of-type{white-space:nowrap}
+  .viewer-footer>.completed-chip{display:none}
+  .extra-tools{order:3;margin-top:0}.extra-tools details{padding:9px 10px}.extra-tools summary{font-size:13px}.extra-grid{grid-template-columns:1fr;gap:8px}
 
-  /* Área de trabalho: controles essenciais -> gráfico -> demais opções */
-  .work-shell{
-    display:grid!important;
-    grid-template-columns:1fr!important;
-    gap:9px!important;
-  }
-  .work-rail{
-    display:contents!important;
-    position:static!important;
-    max-height:none!important;
-    overflow:visible!important;
-  }
-  .work-rail>.compact-card{grid-column:1!important;margin:0!important}
-  .work-rail>.compact-card:nth-child(1){order:1}
-  .work-rail>.compact-card:nth-child(2){order:2}
-  .viewer-card{order:3;grid-column:1!important;border-radius:15px!important;overflow:hidden!important}
-  .work-rail>.compact-card:nth-child(n+3){order:4}
-  .extra-tools{order:5;grid-column:1!important;margin-top:0!important}
+  /* Navegação principal de crochê sempre ao alcance do polegar. */
+  .mobile-crochet-dock{display:grid;position:fixed;z-index:70;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));grid-template-columns:1fr minmax(98px,auto) 1fr;grid-template-rows:50px 32px;gap:5px;padding:7px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 35px rgba(0,0,0,.22);backdrop-filter:blur(10px)}
+  .mobile-crochet-dock .mobile-point-prev,.mobile-crochet-dock .mobile-point-next{min-height:50px;border-radius:12px;font-size:15px;font-weight:850}
+  .mobile-crochet-dock .mobile-point-prev{background:#f0e9e5;color:var(--text)}
+  .dark .mobile-crochet-dock .mobile-point-prev{background:#352d2a}
+  .mobile-crochet-dock .mobile-point-next{background:var(--accent);color:#fff}
+  .mobile-crochet-dock .mobile-status{display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;font-weight:850;line-height:1.15;padding:0 4px}
+  .mobile-crochet-dock .mobile-row-prev,.mobile-crochet-dock .mobile-row-next{min-height:32px;border-radius:9px;padding:2px 6px;font-size:11px;background:var(--accent2);color:var(--text)}
+  .mobile-crochet-dock .mobile-row-prev{grid-column:1/2}.mobile-crochet-dock .mobile-row-label{grid-column:2/3;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted);font-weight:750}.mobile-crochet-dock .mobile-row-next{grid-column:3/4}
 
-  /* Carreira e ponto mais claros */
-  .compact-card{padding:12px!important;border-radius:14px!important}
-  .compact-card h3{margin:0 0 8px!important;font-size:12px!important}
-  .mini-counter{padding:1px 0 8px!important}
-  .mini-counter strong{font-size:36px!important}
-  #activePointSummary{
-    margin:0 0 9px!important;
-    padding:9px 10px!important;
-    border-radius:10px!important;
-    background:var(--accent2)!important;
-    color:var(--accent)!important;
-    text-align:center!important;
-    font-size:16px!important;
-  }
-  .nav-grid .btn,
-  .point-counter-grid .btn,
-  .direction-grid .btn,
-  .jump-row .btn{min-height:42px!important}
-
-  /* Barra do visualizador: ações em rolagem horizontal */
-  .viewer-toolbar{display:block!important;padding:8px!important}
-  .viewer-file{max-width:100%!important;margin-bottom:7px;font-size:12px!important}
-  .viewer-actions{
-    width:100%!important;
-    display:flex!important;
-    flex-wrap:nowrap!important;
-    gap:5px!important;
-    overflow-x:auto!important;
-    padding-bottom:3px;
-    scrollbar-width:none;
-  }
-  .viewer-actions::-webkit-scrollbar{display:none}
-  .viewer-actions .btn,
-  .viewer-actions label.btn{
-    flex:0 0 auto!important;
-    white-space:nowrap!important;
-    padding:8px 9px!important;
-    font-size:11px!important;
-  }
-  .viewer-actions input[type=color]{flex:0 0 38px!important}
-
-  /* Gráfico amplo, com rolagem livre */
-  .viewer-card .pattern-wrap{
-    height:54dvh!important;
-    min-height:330px!important;
-    max-height:none!important;
-    border-radius:0!important;
-    -webkit-overflow-scrolling:touch;
-    overscroll-behavior:contain;
-  }
-  .pattern-shell-v75{--row-ruler-w:42px;--point-ruler-h:30px}
-  .row-ruler-external-v75{width:39px!important}
-  .row-ruler-cell-v75{width:36px!important;font-size:8px!important}
-  .point-ruler-cell{font-size:9px!important}
-
-  /* Detecção: botão grande e campos legíveis */
-  .viewer-footer{display:block!important;padding:10px!important}
-  .detect-inline{
-    width:100%!important;
-    display:grid!important;
-    grid-template-columns:auto minmax(0,1fr)!important;
-    gap:7px 8px!important;
-    align-items:center!important;
-  }
-  .detect-inline>strong{grid-column:1}
-  .detect-inline>.small:first-of-type{
-    grid-column:2;
-    min-width:0;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-  .detect-inline>.btn{
-    grid-column:1 / -1!important;
-    width:100%!important;
-    min-height:44px!important;
-    font-size:13px!important;
-  }
-  .detect-inline>.detect-number{
-    width:100%!important;
-    min-width:0!important;
-    padding:9px!important;
-  }
-  .detect-inline>.small:not(:first-of-type){
-    white-space:nowrap!important;
-  }
-  .viewer-footer>.completed-chip{
-    width:100%!important;
-    justify-content:center!important;
-    margin-top:8px!important;
-  }
-
-  .extra-grid{grid-template-columns:1fr!important;gap:8px!important}
-
-  /* Toque e teclado */
-  button,.btn{touch-action:manipulation}
-  input,select,textarea{font-size:16px!important}
-  .toast{
-    left:12px!important;right:12px!important;bottom:78px!important;
-    text-align:center!important;
-  }
+  body.viewer-focus{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
+  body.viewer-focus main{padding:4px}
+  body.viewer-focus .viewer-card .pattern-wrap{height:calc(100dvh - 158px);min-height:0}
+  body.viewer-focus .mobile-crochet-dock{display:grid}
 }
 
-@media(max-width:390px){
-  main{padding-left:7px!important;padding-right:7px!important}
-  .viewer-card .pattern-wrap{height:51dvh!important;min-height:305px!important}
-  .app>aside .nav button{font-size:10px!important}
-}
-
-
-/* ===== APP MOBILE V2 — organização simplificada ===== */
-.detect-manual-fields{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
-.detect-manual-fields label{margin:0;min-width:110px}
-.detect-manual-fields label span{display:block;font-size:11px;margin-bottom:4px;color:var(--muted)}
-.detect-manual-fields .detect-number{width:110px!important}
-
-@media(max-width:760px){
-  .work-shell{display:flex!important;flex-direction:column!important}
-  .viewer-card{order:1!important}
-  .work-rail{
-    order:2!important;
-    display:flex!important;
-    flex-direction:column!important;
-    position:static!important;
-    max-height:none!important;
-    overflow:visible!important;
-    gap:8px!important;
-  }
-  .extra-tools{order:3!important}
-
-  .viewer-card .pattern-wrap{
-    height:58dvh!important;
-    min-height:340px!important;
-  }
-
-  .viewer-footer{background:var(--card)}
-  .detect-inline{
-    display:flex!important;
-    flex-wrap:wrap!important;
-    align-items:center!important;
-    gap:7px!important;
-  }
-  .detect-inline>strong{flex:0 0 auto!important}
-  .detect-inline>.small:first-of-type{
-    flex:1 1 150px!important;
-    min-width:0!important;
-  }
-  .detect-inline>.btn{
-    order:3;
-    flex:1 0 100%!important;
-    width:100%!important;
-  }
-  .detect-manual-fields{
-    order:4;
-    width:100%;
-    display:grid!important;
-    grid-template-columns:1fr 1fr!important;
-    gap:8px!important;
-  }
-  .detect-manual-fields label{min-width:0!important;width:100%!important}
-  .detect-manual-fields .detect-number{width:100%!important;min-width:0!important}
-  .viewer-footer>.completed-chip{order:5}
-
-  .work-rail>.compact-card:nth-child(1),
-  .work-rail>.compact-card:nth-child(2){
-    border:2px solid var(--accent2);
-  }
-
-  /* Menos poluição visual no celular */
-  .work-rail>.compact-card:nth-child(6){display:none!important}
-  .viewer-actions .voice-state{display:none!important}
-}
-
-
-/* =====================================================================
-   INTERFACE MOBILE — FOCO NO CROCHÊ
-   Não altera a lógica de carreira/ponto/detecção.
-   ===================================================================== */
-.crochet-mobile-controls,
-.mobile-nav-toggle{display:none}
-
-@media(max-width:760px){
-  .viewer-card .pattern-wrap{
-    height:62dvh!important;
-    min-height:380px!important;
-  }
-
-  .viewer-toolbar{padding:7px 8px!important}
-  .viewer-file{margin-bottom:5px!important}
-
-  .crochet-mobile-controls{
-    display:block;
-    background:var(--card);
-    border-top:1px solid var(--line);
-    padding:10px;
-  }
-  .crochet-status{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:7px;
-    margin-bottom:8px;
-  }
-  .crochet-status-box{
-    background:rgba(127,127,127,.045);
-    border:1px solid var(--line);
-    border-radius:11px;
-    padding:7px 9px;
-    text-align:center;
-  }
-  .crochet-status-box span{
-    display:block;
-    color:var(--muted);
-    font-size:10px;
-    font-weight:800;
-    text-transform:uppercase;
-    letter-spacing:.04em;
-  }
-  .crochet-status-box strong{
-    display:block;
-    margin-top:2px;
-    font-size:19px;
-    line-height:1.15;
-  }
-
-  .crochet-point-nav{
-    display:grid;
-    grid-template-columns:.78fr 1.22fr;
-    gap:9px;
-    align-items:stretch;
-  }
-  .crochet-point-nav .btn{
-    min-height:66px!important;
-    border-radius:16px!important;
-    font-size:15px!important;
-    line-height:1.15!important;
-    padding:9px!important;
-  }
-  .crochet-point-nav .btn strong{
-    display:block;
-    font-size:16px;
-  }
-  .crochet-point-next{
-    background:var(--accent)!important;
-    color:#fff!important;
-    box-shadow:0 7px 18px rgba(154,92,112,.22);
-  }
-  .crochet-point-prev{
-    background:#f0e9e5!important;
-    color:var(--text)!important;
-  }
-
-  .crochet-row-nav{
-    margin-top:8px;
-    display:grid;
-    grid-template-columns:1fr auto 1fr;
-    gap:7px;
-    align-items:center;
-  }
-  .crochet-row-nav .btn{
-    min-height:38px!important;
-    padding:7px 8px!important;
-    border-radius:10px!important;
-    font-size:11px!important;
-  }
-  .crochet-row-current{
-    min-width:82px;
-    text-align:center;
-    font-size:11px;
-    color:var(--muted);
-    line-height:1.15;
-  }
-  .crochet-row-current strong{
-    display:block;
-    color:var(--text);
-    font-size:17px;
-  }
-
-  .viewer-footer{border-top:1px solid var(--line)!important}
-
-  .app>aside{
-    transition:transform .22s ease!important;
-    will-change:transform;
-  }
-  body.mobile-nav-hidden .app>aside{
-    transform:translateY(calc(100% + env(safe-area-inset-bottom)))!important;
-  }
-  .mobile-nav-toggle{
-    display:flex;
-    position:fixed;
-    right:12px;
-    bottom:67px;
-    z-index:450;
-    width:42px;
-    height:30px;
-    padding:0;
-    border:1px solid var(--line);
-    border-radius:12px 12px 4px 4px;
-    align-items:center;
-    justify-content:center;
-    background:var(--card);
-    color:var(--accent);
-    box-shadow:0 4px 14px rgba(0,0,0,.12);
-    font-size:17px;
-    font-weight:900;
-    transition:bottom .22s ease;
-  }
-  body.mobile-nav-hidden .mobile-nav-toggle{
-    bottom:7px;
-    border-radius:12px 12px 0 0;
-  }
-  body.mobile-nav-hidden{
-    padding-bottom:38px!important;
-  }
-  body.mobile-nav-hidden .viewer-card .pattern-wrap{
-    height:68dvh!important;
-  }
-  body.mobile-nav-hidden main{padding-bottom:40px!important}
-}
-
-@media(max-width:390px){
-  .viewer-card .pattern-wrap{
-    height:59dvh!important;
-    min-height:350px!important;
-  }
-  body.mobile-nav-hidden .viewer-card .pattern-wrap{
-    height:66dvh!important;
-  }
-  .crochet-point-nav .btn{min-height:62px!important}
+@media (max-width:430px){
+  .viewer-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .viewer-card .pattern-wrap{height:calc(100dvh - 275px);min-height:340px}
+  .detect-inline{grid-template-columns:auto minmax(0,1fr) auto}
+  .detect-inline span.small:last-of-type{grid-column:1/2}
+  .work-rail{grid-template-columns:1fr}
+  .work-rail .compact-card:nth-child(1),.work-rail .compact-card:nth-child(2){grid-column:1/-1}
 }
 
 </style>
@@ -665,7 +314,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   </div>
   <div class="side-bottom">
     <button class="btn secondary" style="width:100%" onclick="toggleDark()">🌙 Aparência</button>
-    <div class="small" style="margin:10px 5px">Tudo fica salvo neste navegador.<br>Versão 7.6.7 APP · foco crochê</div>
+    <div class="small" style="margin:10px 5px">Tudo fica salvo neste navegador.<br>Versão 7.6.5 · grade calibrada</div>
   </div>
 </aside>
 
@@ -1677,102 +1326,24 @@ function applyDetection(p,found,sourceH,foundX=null,sourceW=0,rowRanges=null){
  const c=(p.counters||[]).find(x=>x.name==='Carreiras');if(c)c.target=found.rows;
  save();
 }
-function makeMobileSafeDetectionCanvas(source){
-  if(!source)throw new Error('Fonte do gráfico não encontrada');
-  const sourceW=source.tagName==='IMG'?(source.naturalWidth||source.width):(source.width||0);
-  const sourceH=source.tagName==='IMG'?(source.naturalHeight||source.height):(source.height||0);
-  if(!sourceW||!sourceH)throw new Error('Gráfico sem dimensões válidas');
-
-  // Em celulares, getImageData em imagens muito grandes pode falhar por memória.
-  // A análise usa uma cópia reduzida e depois converte as coordenadas para
-  // o tamanho original. Isso NÃO muda a imagem nem a geometria salva.
-  const maxSide=3000;
-  const maxPixels=5000000;
-  const bySide=Math.min(1,maxSide/Math.max(sourceW,sourceH));
-  const byPixels=Math.min(1,Math.sqrt(maxPixels/(sourceW*sourceH)));
-  const scale=Math.min(bySide,byPixels);
-
-  if(scale>=0.999 && source.tagName==='CANVAS'){
-    return {canvas:source,scale:1,sourceW,sourceH};
-  }
-
-  const canvas=document.createElement('canvas');
-  canvas.width=Math.max(30,Math.round(sourceW*scale));
-  canvas.height=Math.max(30,Math.round(sourceH*scale));
-  const ctx=canvas.getContext('2d',{willReadFrequently:true});
-  if(!ctx)throw new Error('Canvas de detecção indisponível');
-  ctx.drawImage(source,0,0,canvas.width,canvas.height);
-  return {canvas,scale,sourceW,sourceH};
-}
-
-function scaleDetectedGrid(det,factor){
-  if(!det||factor===1)return det;
-  const out={...det};
-  ['pitch','first','last'].forEach(k=>{if(Number.isFinite(Number(out[k])))out[k]=Number(out[k])*factor});
-  if(Array.isArray(out.lines))out.lines=out.lines.map(v=>Number(v)*factor);
-  return out;
-}
-
-function scaleDetectedRowRanges(ranges,factor){
-  if(!ranges||factor===1)return ranges||{};
-  const out={};
-  Object.keys(ranges).forEach(k=>{
-    const r={...ranges[k]};
-    ['left','right','pitch'].forEach(n=>{if(Number.isFinite(Number(r[n])))r[n]=Number(r[n])*factor});
-    out[k]=r;
-  });
-  return out;
-}
-
 async function detectPatternRows(){
  const p=project();if(!p?.pattern){toast('Adicione uma receita primeiro.');return}
  try{
-   let source;
+   let canvas;
    if(isPdfPattern(p)){
-     await renderPdfPage(pdfPageCache[p.id]?.page||1);
-     source=document.getElementById('pdfCanvas');
+     await renderPdfPage(pdfPageCache[p.id]?.page||1);canvas=document.getElementById('pdfCanvas');
    }else{
-     const img=document.getElementById('patternImg');
-     if(!img)throw new Error('Imagem não encontrada');
-     if(!img.complete || !img.naturalWidth)await new Promise((res,rej)=>{
-       const done=()=>{cleanup();res()};
-       const fail=()=>{cleanup();rej(new Error('Não foi possível carregar a imagem'))};
-       const cleanup=()=>{img.removeEventListener('load',done);img.removeEventListener('error',fail)};
-       img.addEventListener('load',done,{once:true});
-       img.addEventListener('error',fail,{once:true});
-       if(img.complete&&img.naturalWidth)done();
-     });
-     source=img;
+     const img=document.getElementById('patternImg');if(!img)throw new Error('Imagem não encontrada');
+     if(!img.complete)await new Promise((res,rej)=>{img.onload=res;img.onerror=rej});
+     canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;canvas.getContext('2d',{willReadFrequently:true}).drawImage(img,0,0);
    }
-   if(!source)throw new Error('Imagem/canvas não encontrado');
-
-   const prep=makeMobileSafeDetectionCanvas(source);
-   const canvas=prep.canvas;
-   const foundScaled=findGridLines(canvas);
-   if(!foundScaled)throw new Error('Grade horizontal não identificada');
-
-   const foundXScaled=findGridColumns(canvas,foundScaled.pitch);
-   const rowRangesScaled=foundXScaled?detectPointRangesByRow(canvas,foundScaled,foundXScaled):{};
-
-   const factor=prep.scale>0?1/prep.scale:1;
-   const found=scaleDetectedGrid(foundScaled,factor);
-   const foundX=scaleDetectedGrid(foundXScaled,factor);
-   const rowRanges=scaleDetectedRowRanges(rowRangesScaled,factor);
-
-   applyDetection(p,found,prep.sourceH,foundX,prep.sourceW,rowRanges);
-   if((Number(p.row)||0)<1 && found.rows>0)p.row=1;
-   p.activePoint=1;
-   save();
-   rerenderPreserveViewer();
-
-   toast(foundX
-     ? `✅ ${found.rows} carreiras e ${foundX.columns} pontos detectados`
-     : `✅ ${found.rows} carreiras detectadas; pontos horizontais não identificados`);
- }catch(e){
-   console.error('Falha na detecção:',e);
-   const msg=(e&&e.message)?e.message:'erro desconhecido';
-   toast('Falha na detecção: '+msg);
- }
+   if(!canvas)throw new Error('Canvas não encontrado');
+   const found=findGridLines(canvas);if(!found)throw new Error('Grade horizontal não identificada');
+   const foundX=findGridColumns(canvas,found.pitch);
+   const rowRanges=foundX?detectPointRangesByRow(canvas,found,foundX):{};
+   applyDetection(p,found,canvas.height,foundX,canvas.width,rowRanges);rerenderPreserveViewer();
+   toast(foundX?`Detectadas ${found.rows} carreiras; malha horizontal recalibrada e cache antigo descartado`:`Detectadas ${found.rows} carreiras; pontos horizontais não identificados`);
+ }catch(e){console.error(e);toast('Não consegui detectar automaticamente. Você pode informar o total de carreiras manualmente.')}
 }
 async function detectPdfRows(){return detectPatternRows()}
 
@@ -1781,7 +1352,7 @@ function stopVoice(){voiceShouldRun=false;if(voiceRecognition){voiceRecognition.
 
 function renderPattern(p){if(!p.pattern)return `<div class="empty">Nenhum padrão adicionado.<br><small>Você pode colocar uma imagem ou PDF da receita aqui.</small></div>`;const overlays=`<div class="completed-rows-layer" id="completedRowsLayer"></div><div class="row-highlight" id="rowHighlight"><span class="row-highlight-label" id="rowHighlightLabel"></span></div><div class="point-marks-layer" id="pointMarksLayer"></div><div class="point-active-layer" id="pointActiveLayer"><div class="point-active-cell" id="pointActiveCell"><span class="point-active-label" id="pointActiveLabel"></span></div></div><div class="point-ruler-layer" id="pointRulerLayer"></div>`;if(isPdfPattern(p))return `<div class="pattern-wrap" id="pdfPatternWrap"><div class="pattern-stage" id="patternStage" onclick="onPatternPointClick(event)"><canvas id="pdfCanvas"></canvas>${overlays}</div></div><div class="row" style="margin-top:10px;justify-content:center"><button id="pdfPrevBtn" class="btn secondary" onclick="pdfPrevPage()">◀ Página anterior</button><span id="pdfPageInfo" class="small">Página 1</span><button id="pdfNextBtn" class="btn secondary" onclick="pdfNextPage()">Próxima página ▶</button></div>`;return `<div class="pattern-wrap"><div class="pattern-stage" id="patternStage" onclick="onPatternPointClick(event)"><img id="patternImg" src="${p.pattern.data}" alt="Padrão" onload="applyZoom()">${overlays}</div></div>`}
 
-function renderWork(){const p=project();if(!p){showPage('home');return}document.getElementById('work-title').textContent=p.name;document.getElementById('work-subtitle').textContent=`${p.type} · criado em ${new Date(p.created).toLocaleDateString('pt-BR')}`;const pct=p.totalRows?Math.min(100,(completedCount(p)/p.totalRows)*100):0,isDone=!!p.completedRows[String(p.row)],patternName=p.pattern?.name||'Nenhuma receita carregada';document.getElementById('work-content').innerHTML=`<div class="work-shell"><aside class="work-rail"><div class="compact-card"><h3>Carreira atual</h3><div class="mini-counter"><strong>${p.row||0}</strong> <span>${p.totalRows?' / '+p.totalRows:''}</span></div><div class="nav-grid"><button class="btn secondary" onclick="changeRow(-10)">−10</button><button class="btn secondary" onclick="changeRow(-1)">−</button><button class="btn" onclick="changeRow(1)">＋</button><button class="btn secondary" onclick="changeRow(10)">+10</button></div><div class="jump-row"><input id="jumpRow" type="number" min="1" max="${p.totalRows||9999}" placeholder="Ir para..." onkeydown="if(event.key==='Enter')goToRow()"><button class="btn secondary" onclick="goToRow()">Ir</button></div></div><div class="compact-card"><h3>Ponto na carreira</h3><div id="activePointSummary" style="font-size:15px;font-weight:800;line-height:1.35;margin:2px 0 10px">${p.row&&getCurrentRowPointTotal(p)?`Carreira ${p.row} | Ponto ${clampActivePoint(p)} de ${getCurrentRowPointTotal(p)}`:`Carreira ${p.row||0} | Pontos não detectados`}</div><div class="mini-counter hidden"><strong id="activePointValue">${getCurrentRowPointTotal(p)?clampActivePoint(p):0}</strong><span id="activePointTotal">${getCurrentRowPointTotal(p)?' / '+getCurrentRowPointTotal(p):''}</span></div><div class="point-counter-grid"><button class="btn secondary" onclick="changePoint(-1)">← Ponto</button><button class="btn secondary" onclick="changePoint(1)">Ponto →</button></div><div class="small" style="margin-top:10px;margin-bottom:6px">Início da contagem</div><div class="direction-grid"><button class="btn ${getPointDirection(p)==='left-to-right'?'':'secondary'}" onclick="setPointDirection('left-to-right')">Esquerda → direita</button><button class="btn ${getPointDirection(p)==='right-to-left'?'':'secondary'}" onclick="setPointDirection('right-to-left')">Direita → esquerda</button></div></div><div class="compact-card"><h3>Marcações</h3><button id="completeCurrentBtn" class="btn ${isDone?'secondary':''} mark-action" onclick="toggleCompletedRow(${p.row||1})">${isDone?'↩ Reabrir atual':'✓ Concluir atual'}</button><button class="btn secondary mark-action" onclick="markThroughCurrent()">✓ Marcar até a atual</button><div class="switch-row" style="margin-top:10px"><input id="autoMark" type="checkbox" ${p.autoMarkCompleted?'checked':''} onchange="setAutoMarkCompleted(this.checked)"><label for="autoMark" style="margin:0;color:inherit">Ao avançar, concluir a anterior</label></div><div class="color-row" style="margin-top:10px"><div><div class="small">Cor das próximas concluídas</div><span class="completed-chip"><span class="dot" style="background:${p.completedColor}"></span><span id="completedCountChip">${completedCount(p)} concluídas</span></span></div><input type="color" value="${p.completedColor}" onchange="setCompletedColor(this.value)"></div><div class="row" style="margin-top:8px"><button class="btn secondary" style="flex:1;padding:8px" onclick="recolorCompleted()">Aplicar a todas</button><button class="btn ghost" style="padding:8px" onclick="clearCompleted()">Limpar</button></div></div><div class="compact-card"><h3>Sentido</h3><div class="direction-grid"><button class="btn ${getDirection(p)==='bottom-up'?'':'secondary'}" onclick="setDirection('bottom-up')">⬆ Baixo → cima</button><button class="btn ${getDirection(p)==='top-down'?'':'secondary'}" onclick="setDirection('top-down')">⬇ Cima → baixo</button></div></div><div class="compact-card"><h3>Progresso</h3><div class="progress"><div data-progress-fill style="width:${pct}%"></div></div><div id="progressSummary" class="small" style="margin-top:7px">${completedCount(p)} de ${p.totalRows||'?'} concluídas · ${Math.round(pct)}%</div></div><div class="compact-card"><h3>Atalhos</h3><div class="small"><span class="shortcut">Espaço</span> próxima · <span class="shortcut">← →</span> navegar<br><span class="shortcut">Z</span> voltar · <span class="shortcut">T</span> tempo</div></div></aside><section class="viewer-card" id="viewerPanel"><div class="viewer-toolbar"><div class="viewer-file">📄 ${esc(patternName)}</div><div class="viewer-actions"><button class="btn secondary" onclick="zoomBy(-.25)">− Zoom</button><span id="zoomReadout" class="zoom-readout">${Math.round(p.zoom*100)}%</span><button class="btn secondary" onclick="zoomBy(.25)">+ Zoom</button><button class="btn secondary" onclick="fitZoom()">Ajustar</button><button id="centerPatternBtn" class="btn secondary ${p.centerPattern?'active-tool':''}" aria-pressed="${p.centerPattern?'true':'false'}" onclick="toggleHorizontalCenter()">${p.centerPattern?'↔ Centralizado':'↔ Centralizar'}</button><button id="pointModeBtn" class="btn secondary" onclick="togglePointMode()">🟠 Marcar pontos</button><input type="color" value="${p.pointColor}" title="Cor dos pontos" style="width:38px;height:34px;padding:2px" onchange="setPointColor(this.value)"><button class="btn ghost" onclick="clearPointMarks()">Limpar pontos</button><button class="btn secondary" onclick="startVoice()">🎙 Ativar voz</button><button class="btn ghost" onclick="stopVoice()">Parar voz</button><span id="voiceStatus" class="voice-state">Desativado</span><button id="focusBtn" class="btn secondary" onclick="toggleViewerFocus()">⛶ Modo foco</button><button class="btn secondary" onclick="toggleViewerFullscreen()">⛶ Tela cheia</button><label class="btn secondary" style="cursor:pointer">Trocar arquivo<input type="file" accept="image/*,.pdf,application/pdf" hidden onchange="uploadPattern(this)"></label>${p.pattern?'<button class="btn danger" onclick="removePattern()">Remover</button>':''}</div></div>${renderPattern(p)}<div class="viewer-footer"><div class="detect-inline"><strong style="font-size:12px">Detecção:</strong><span class="small">${p.detectedRows?'✅ '+p.detectedRows+' carreiras'+(p.detectedPoints?' · pontos por carreira analisados':''):'não realizada'}</span>${p.pattern?`<button class="btn" onclick="detectPatternRows()">🔎 ${p.detectedRows?'Detectar novamente':'Detectar carreiras'}</button>`:''}<div class="detect-manual-fields"><label><span>Carreiras</span><input class="detect-number" type="number" min="1" value="${p.totalRows||p.detectedRows||''}" placeholder="Total" onchange="setDetectedRows(this.value)"></label><label><span>Pontos / largura</span><input class="detect-number" type="number" min="1" value="${p.detectedPoints||''}" placeholder="Largura" title="Largura horizontal global de referência; cada carreira usa sua própria faixa quando detectada" onchange="setDetectedPoints(this.value)"></label></div></div><div class="completed-chip"><span class="dot" style="background:${p.currentRowColor}"></span>Atual <span class="dot" style="background:${p.completedColor};margin-left:8px"></span>Concluídas</div></div></section><div class="extra-tools"><details><summary>Mais ferramentas do projeto</summary><div class="extra-grid"><div class="compact-card"><h3>⏱ Tempo</h3><div id="liveTime" style="font-size:24px;font-weight:800">${formatTime(p.seconds)}</div><div class="row" style="margin-top:8px">${p.running?'<button class="btn" onclick="pauseTimer()">⏸ Pausar</button>':'<button class="btn" onclick="startTimer()">▶ Iniciar</button>'}<button class="btn secondary" onclick="resetTimer()">Zerar</button></div></div><div class="compact-card"><h3>📝 Anotações</h3><textarea oninput="updateNotes(this.value)">${esc(p.notes)}</textarea></div><div class="compact-card"><h3>▦ Métricas da grade</h3><div class="small">Total estimado de quadrados/pontos do projeto</div><div id="graphAreaTotal" style="font-size:24px;font-weight:800;margin-top:4px">${getProjectPointTotal(p).toLocaleString('pt-BR')}</div><div class="small" style="margin-top:5px">Soma das larguras detectadas carreira por carreira.</div></div><div class="compact-card"><h3>⚙ Projeto</h3><button class="btn secondary" onclick="exportProject()">Exportar</button> <button class="btn danger" onclick="deleteProject()">Excluir</button></div></div></details></div></div>`;if(p.running){clearInterval(timerHandle);timerHandle=setInterval(()=>{addTime(p);updateLive()},1000)}if(isPdfPattern(p))renderPdfPage(pdfPageCache[p.id]?.page||1).then(()=>{applyZoom();setTimeout(()=>applyHorizontalCenter(!!p.centerPattern),0)});else setTimeout(()=>{applyZoom();applyHorizontalCenter(!!p.centerPattern)},20)}
+function renderWork(){const p=project();if(!p){showPage('home');return}document.getElementById('work-title').textContent=p.name;document.getElementById('work-subtitle').textContent=`${p.type} · criado em ${new Date(p.created).toLocaleDateString('pt-BR')}`;const pct=p.totalRows?Math.min(100,(completedCount(p)/p.totalRows)*100):0,isDone=!!p.completedRows[String(p.row)],patternName=p.pattern?.name||'Nenhuma receita carregada';document.getElementById('work-content').innerHTML=`<div class="work-shell"><aside class="work-rail"><div class="compact-card"><h3>Carreira atual</h3><div class="mini-counter"><strong>${p.row||0}</strong> <span>${p.totalRows?' / '+p.totalRows:''}</span></div><div class="nav-grid"><button class="btn secondary" onclick="changeRow(-10)">−10</button><button class="btn secondary" onclick="changeRow(-1)">−</button><button class="btn" onclick="changeRow(1)">＋</button><button class="btn secondary" onclick="changeRow(10)">+10</button></div><div class="jump-row"><input id="jumpRow" type="number" min="1" max="${p.totalRows||9999}" placeholder="Ir para..." onkeydown="if(event.key==='Enter')goToRow()"><button class="btn secondary" onclick="goToRow()">Ir</button></div></div><div class="compact-card"><h3>Ponto na carreira</h3><div id="activePointSummary" style="font-size:15px;font-weight:800;line-height:1.35;margin:2px 0 10px">${p.row&&getCurrentRowPointTotal(p)?`Carreira ${p.row} | Ponto ${clampActivePoint(p)} de ${getCurrentRowPointTotal(p)}`:`Carreira ${p.row||0} | Pontos não detectados`}</div><div class="mini-counter hidden"><strong id="activePointValue">${getCurrentRowPointTotal(p)?clampActivePoint(p):0}</strong><span id="activePointTotal">${getCurrentRowPointTotal(p)?' / '+getCurrentRowPointTotal(p):''}</span></div><div class="point-counter-grid"><button class="btn secondary" onclick="changePoint(-1)">← Ponto</button><button class="btn secondary" onclick="changePoint(1)">Ponto →</button></div><div class="small" style="margin-top:10px;margin-bottom:6px">Início da contagem</div><div class="direction-grid"><button class="btn ${getPointDirection(p)==='left-to-right'?'':'secondary'}" onclick="setPointDirection('left-to-right')">Esquerda → direita</button><button class="btn ${getPointDirection(p)==='right-to-left'?'':'secondary'}" onclick="setPointDirection('right-to-left')">Direita → esquerda</button></div></div><div class="compact-card"><h3>Marcações</h3><button id="completeCurrentBtn" class="btn ${isDone?'secondary':''} mark-action" onclick="toggleCompletedRow(${p.row||1})">${isDone?'↩ Reabrir atual':'✓ Concluir atual'}</button><button class="btn secondary mark-action" onclick="markThroughCurrent()">✓ Marcar até a atual</button><div class="switch-row" style="margin-top:10px"><input id="autoMark" type="checkbox" ${p.autoMarkCompleted?'checked':''} onchange="setAutoMarkCompleted(this.checked)"><label for="autoMark" style="margin:0;color:inherit">Ao avançar, concluir a anterior</label></div><div class="color-row" style="margin-top:10px"><div><div class="small">Cor das próximas concluídas</div><span class="completed-chip"><span class="dot" style="background:${p.completedColor}"></span><span id="completedCountChip">${completedCount(p)} concluídas</span></span></div><input type="color" value="${p.completedColor}" onchange="setCompletedColor(this.value)"></div><div class="row" style="margin-top:8px"><button class="btn secondary" style="flex:1;padding:8px" onclick="recolorCompleted()">Aplicar a todas</button><button class="btn ghost" style="padding:8px" onclick="clearCompleted()">Limpar</button></div></div><div class="compact-card"><h3>Sentido</h3><div class="direction-grid"><button class="btn ${getDirection(p)==='bottom-up'?'':'secondary'}" onclick="setDirection('bottom-up')">⬆ Baixo → cima</button><button class="btn ${getDirection(p)==='top-down'?'':'secondary'}" onclick="setDirection('top-down')">⬇ Cima → baixo</button></div></div><div class="compact-card"><h3>Progresso</h3><div class="progress"><div data-progress-fill style="width:${pct}%"></div></div><div id="progressSummary" class="small" style="margin-top:7px">${completedCount(p)} de ${p.totalRows||'?'} concluídas · ${Math.round(pct)}%</div></div><div class="compact-card"><h3>Atalhos</h3><div class="small"><span class="shortcut">Espaço</span> próxima · <span class="shortcut">← →</span> navegar<br><span class="shortcut">Z</span> voltar · <span class="shortcut">T</span> tempo</div></div></aside><section class="viewer-card" id="viewerPanel"><div class="viewer-toolbar"><div class="viewer-file">📄 ${esc(patternName)}</div><div class="viewer-actions"><button class="btn secondary" onclick="zoomBy(-.25)">− Zoom</button><span id="zoomReadout" class="zoom-readout">${Math.round(p.zoom*100)}%</span><button class="btn secondary" onclick="zoomBy(.25)">+ Zoom</button><button class="btn secondary" onclick="fitZoom()">Ajustar</button><button id="centerPatternBtn" class="btn secondary ${p.centerPattern?'active-tool':''}" aria-pressed="${p.centerPattern?'true':'false'}" onclick="toggleHorizontalCenter()">${p.centerPattern?'↔ Centralizado':'↔ Centralizar'}</button><button id="pointModeBtn" class="btn secondary" onclick="togglePointMode()">🟠 Marcar pontos</button><input type="color" value="${p.pointColor}" title="Cor dos pontos" style="width:38px;height:34px;padding:2px" onchange="setPointColor(this.value)"><button class="btn ghost" onclick="clearPointMarks()">Limpar pontos</button><button class="btn secondary" onclick="startVoice()">🎙 Ativar voz</button><button class="btn ghost" onclick="stopVoice()">Parar voz</button><span id="voiceStatus" class="voice-state">Desativado</span><button id="focusBtn" class="btn secondary" onclick="toggleViewerFocus()">⛶ Modo foco</button><button class="btn secondary" onclick="toggleViewerFullscreen()">⛶ Tela cheia</button><label class="btn secondary" style="cursor:pointer">Trocar arquivo<input type="file" accept="image/*,.pdf,application/pdf" hidden onchange="uploadPattern(this)"></label>${p.pattern?'<button class="btn danger" onclick="removePattern()">Remover</button>':''}</div></div>${renderPattern(p)}<div class="viewer-footer"><div class="detect-inline"><strong style="font-size:12px">Detecção:</strong><span class="small">${p.detectedRows?'✅ '+p.detectedRows+' carreiras'+(p.detectedPoints?' · pontos por carreira analisados':''):'não realizada'}</span>${p.pattern?`<button class="btn" onclick="detectPatternRows()">🔎 ${p.detectedRows?'Detectar novamente':'Detectar carreiras'}</button>`:''}<input class="detect-number" type="number" min="1" value="${p.totalRows||p.detectedRows||''}" placeholder="Total" onchange="setDetectedRows(this.value)"><span class="small">Largura ref.:</span><input class="detect-number" type="number" min="1" value="${p.detectedPoints||''}" placeholder="Largura" title="Largura horizontal global de referência; cada carreira usa sua própria faixa quando detectada" onchange="setDetectedPoints(this.value)"></div><div class="completed-chip"><span class="dot" style="background:${p.currentRowColor}"></span>Atual <span class="dot" style="background:${p.completedColor};margin-left:8px"></span>Concluídas</div></div></section><div class="mobile-crochet-dock" aria-label="Navegação principal do crochê"><button class="mobile-point-prev" onclick="changePoint(-1)">← Anterior</button><div class="mobile-status">${p.row&&getCurrentRowPointTotal(p)?`Carreira ${p.row}<br>Ponto ${clampActivePoint(p)} de ${getCurrentRowPointTotal(p)}`:`Carreira ${p.row||0}<br>Pontos —`}</div><button class="mobile-point-next" onclick="changePoint(1)">Próxima →</button><button class="mobile-row-prev" onclick="changeRow(-1)">− Carreira</button><div class="mobile-row-label">trocar carreira</div><button class="mobile-row-next" onclick="changeRow(1)">+ Carreira</button></div><div class="extra-tools"><details><summary>Mais ferramentas do projeto</summary><div class="extra-grid"><div class="compact-card"><h3>⏱ Tempo</h3><div id="liveTime" style="font-size:24px;font-weight:800">${formatTime(p.seconds)}</div><div class="row" style="margin-top:8px">${p.running?'<button class="btn" onclick="pauseTimer()">⏸ Pausar</button>':'<button class="btn" onclick="startTimer()">▶ Iniciar</button>'}<button class="btn secondary" onclick="resetTimer()">Zerar</button></div></div><div class="compact-card"><h3>📝 Anotações</h3><textarea oninput="updateNotes(this.value)">${esc(p.notes)}</textarea></div><div class="compact-card"><h3>▦ Métricas da grade</h3><div class="small">Total estimado de quadrados/pontos do projeto</div><div id="graphAreaTotal" style="font-size:24px;font-weight:800;margin-top:4px">${getProjectPointTotal(p).toLocaleString('pt-BR')}</div><div class="small" style="margin-top:5px">Soma das larguras detectadas carreira por carreira.</div></div><div class="compact-card"><h3>⚙ Projeto</h3><button class="btn secondary" onclick="exportProject()">Exportar</button> <button class="btn danger" onclick="deleteProject()">Excluir</button></div></div></details></div></div>`;if(p.running){clearInterval(timerHandle);timerHandle=setInterval(()=>{addTime(p);updateLive()},1000)}if(isPdfPattern(p))renderPdfPage(pdfPageCache[p.id]?.page||1).then(()=>{applyZoom();setTimeout(()=>applyHorizontalCenter(!!p.centerPattern),0)});else setTimeout(()=>{applyZoom();applyHorizontalCenter(!!p.centerPattern)},20)}
 
 // Reaplica zoom/overlays após PDF renderizar.
 const _renderPdfPageV62=renderPdfPage;
@@ -1899,143 +1470,13 @@ renderPdfPage=async function(pageNo=1){const result=await _renderPdfPageV75(page
 window.addEventListener('beforeunload',()=>{const p=project();if(p&&p.running){addTime(p);p.running=false;save()}});
 renderProjects();
 applySidebarState();
-</script>
-
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js', {scope:'./'})
-      .then(reg => reg.update())
-      .catch(err => console.warn('SW:', err));
-  });
+// Mobile: inicia com a navegação recolhida para priorizar o gráfico; o botão ☰ continua disponível.
+if(window.matchMedia && window.matchMedia('(max-width:760px)').matches){
+  data.sidebarCollapsed=true;
+  save();
+  applySidebarState();
 }
+
 </script>
-
-
-<script>
-(function(){
-  function isMobileCrochet(){ return window.matchMedia('(max-width:760px)').matches; }
-
-  window.toggleMobileBottomNav=function(){
-    const hidden=!document.body.classList.contains('mobile-nav-hidden');
-    document.body.classList.toggle('mobile-nav-hidden',hidden);
-    try{localStorage.setItem('meuCroche_mobileNavHidden',hidden?'1':'0')}catch(e){}
-    syncMobileNavToggle();
-    setTimeout(()=>{ if(typeof updateViewerOverlays==='function') updateViewerOverlays(); },260);
-  };
-
-  function syncMobileNavToggle(){
-    const b=document.getElementById('mobileNavToggle');
-    if(!b)return;
-    const hidden=document.body.classList.contains('mobile-nav-hidden');
-    b.textContent=hidden?'⌃':'⌄';
-    b.title=hidden?'Mostrar menu inferior':'Recolher menu inferior';
-    b.setAttribute('aria-label',b.title);
-  }
-
-  function getMobileRowText(){
-    const p=typeof project==='function'?project():null;
-    if(!p)return {row:0,total:0};
-    return {row:Number(p.row)||0,total:Number(p.totalRows||p.detectedRows)||0};
-  }
-
-  function getMobilePointText(){
-    const p=typeof project==='function'?project():null;
-    if(!p)return {point:0,total:0};
-    let total=0,point=0;
-    try{
-      total=typeof getCurrentRowPointTotal==='function'?Number(getCurrentRowPointTotal(p))||0:0;
-      point=total && typeof clampActivePoint==='function'?Number(clampActivePoint(p))||1:0;
-    }catch(e){}
-    return {point,total};
-  }
-
-  window.refreshCrochetMobileControls=function(){
-    if(!isMobileCrochet())return;
-    const row=getMobileRowText(),pt=getMobilePointText();
-    const rowEl=document.getElementById('mobileCrochetRow');
-    const ptEl=document.getElementById('mobileCrochetPoint');
-    const center=document.getElementById('mobileCrochetRowCenter');
-    if(rowEl) rowEl.textContent=row.total?`${row.row} de ${row.total}`:String(row.row||0);
-    if(ptEl) ptEl.textContent=pt.total?`${pt.point} de ${pt.total}`:'não detectado';
-    if(center) center.innerHTML=`<strong>${row.row||0}</strong>${row.total?'de '+row.total:'carreira'}`;
-  };
-
-  window.ensureCrochetMobileControls=function(){
-    if(!isMobileCrochet())return;
-    const viewer=document.getElementById('viewerPanel');
-    if(!viewer)return;
-
-    const footer=viewer.querySelector('.viewer-footer');
-    if(!footer)return;
-
-    let controls=document.getElementById('crochetMobileControls');
-    if(!controls){
-      controls=document.createElement('div');
-      controls.id='crochetMobileControls';
-      controls.className='crochet-mobile-controls';
-      controls.innerHTML=`
-        <div class="crochet-status">
-          <div class="crochet-status-box"><span>Carreira</span><strong id="mobileCrochetRow">0</strong></div>
-          <div class="crochet-status-box"><span>Ponto</span><strong id="mobileCrochetPoint">não detectado</strong></div>
-        </div>
-        <div class="crochet-point-nav">
-          <button class="btn crochet-point-prev" type="button" onclick="changePoint(-1)">← <strong>Anterior</strong><small>ponto</small></button>
-          <button class="btn crochet-point-next" type="button" onclick="changePoint(1)"><strong>Próximo ponto</strong>→</button>
-        </div>
-        <div class="crochet-row-nav">
-          <button class="btn secondary" type="button" onclick="changeRow(-1)">↑ Carreira anterior</button>
-          <div class="crochet-row-current" id="mobileCrochetRowCenter"><strong>0</strong>carreira</div>
-          <button class="btn secondary" type="button" onclick="changeRow(1)">Carreira próxima ↓</button>
-        </div>`;
-      viewer.insertBefore(controls,footer);
-    }
-
-    if(!document.getElementById('mobileNavToggle')){
-      const toggle=document.createElement('button');
-      toggle.id='mobileNavToggle';
-      toggle.className='mobile-nav-toggle';
-      toggle.type='button';
-      toggle.onclick=toggleMobileBottomNav;
-      document.body.appendChild(toggle);
-    }
-    syncMobileNavToggle();
-    refreshCrochetMobileControls();
-  };
-
-  try{
-    if(localStorage.getItem('meuCroche_mobileNavHidden')==='1'){
-      document.body.classList.add('mobile-nav-hidden');
-    }
-  }catch(e){}
-
-  if(typeof renderWork==='function'){
-    const _renderWorkCrochetFocus=renderWork;
-    renderWork=function(){
-      const r=_renderWorkCrochetFocus.apply(this,arguments);
-      setTimeout(()=>{ensureCrochetMobileControls();refreshCrochetMobileControls();},0);
-      return r;
-    };
-  }
-
-  if(typeof refreshPointCounter==='function'){
-    const _refreshPointCounterCrochetFocus=refreshPointCounter;
-    refreshPointCounter=function(){
-      const r=_refreshPointCounterCrochetFocus.apply(this,arguments);
-      refreshCrochetMobileControls();
-      return r;
-    };
-  }
-
-  window.addEventListener('resize',()=>{
-    if(isMobileCrochet())ensureCrochetMobileControls();
-  });
-  window.addEventListener('load',()=>{
-    syncMobileNavToggle();
-    setTimeout(ensureCrochetMobileControls,100);
-  });
-})();
-</script>
-
 </body>
 </html>
