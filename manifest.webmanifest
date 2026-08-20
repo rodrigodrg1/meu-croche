@@ -1,22 +1,30 @@
 {
-  "name": "Meu Crochê — Contador de Carreiras",
+  "id": "./",
+  "name": "Meu Crochê",
   "short_name": "Meu Crochê",
-  "description": "Contador de carreiras e pontos para gráficos de crochê filé.",
-  "start_url": "./index.html",
+  "description": "Contador de carreiras e pontos para gráficos de crochê.",
+  "start_url": "./?app=v767",
   "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait-primary",
   "background_color": "#f7f3f0",
   "theme_color": "#9a5c70",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "./icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "./icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

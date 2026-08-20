@@ -1,5 +1,5 @@
-const CACHE_NAME = 'meu-croche-v7-6-7-app-20260820';
-const APP_SHELL = [
+const CACHE_NAME = 'meu-croche-v7-6-7-mobile-final-20260820-02';
+const CORE = [
   './',
   './index.html',
   './manifest.webmanifest',
@@ -10,7 +10,9 @@ const APP_SHELL = [
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL))
+    caches.open(CACHE_NAME).then(cache =>
+      Promise.all(CORE.map(url => cache.add(url).catch(() => null)))
+    )
   );
 });
 
@@ -27,10 +29,10 @@ self.addEventListener('fetch', event => {
 
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, {cache:'no-store'})
         .then(response => {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
+          caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy)).catch(()=>{});
           return response;
         })
         .catch(() => caches.match('./index.html'))
@@ -38,16 +40,17 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then(cached => {
-      const network = fetch(event.request).then(response => {
-        if (response && response.ok && event.request.url.startsWith(self.location.origin)) {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-        }
-        return response;
-      }).catch(() => cached);
-      return cached || network;
-    })
-  );
+  const url = new URL(event.request.url);
+  if (url.origin === self.location.origin) {
+    event.respondWith(
+      caches.match(event.request).then(cached =>
+        cached || fetch(event.request).then(response => {
+          if (response && response.ok) {
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, response.clone())).catch(()=>{});
+          }
+          return response;
+        })
+      )
+    );
+  }
 });
