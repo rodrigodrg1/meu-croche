@@ -1,42 +1,69 @@
+const CACHE_NAME = 'meu-croche-v7-6-7-final-20260820';
 
-const CACHE='meu-croche-pwa-v2-analysis';
-const APP_SHELL=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
+const APP_SHELL = [
+  './',
+  './index.html',
+  './manifest.webmanifest',
+  './icon-192.png',
+  './icon-512.png'
+];
 
-self.addEventListener('install',event=>{
-  event.waitUntil(caches.open(CACHE).then(c=>c.addAll(APP_SHELL)));
+self.addEventListener('install', event => {
   self.skipWaiting();
-});
-
-self.addEventListener('activate',event=>{
   event.waitUntil(
-    caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))
+    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL))
   );
-  self.clients.claim();
 });
 
-self.addEventListener('fetch',event=>{
-  const req=event.request;
-  if(req.method!=='GET')return;
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+      ))
+      .then(() => self.clients.claim())
+  );
+});
 
-  const url=new URL(req.url);
+self.addEventListener('fetch', event => {
+  const request = event.request;
 
-  // External libraries: try network first, fall back to cache if already seen.
-  if(url.origin!==location.origin){
+  if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
+
+  // Navegação: prioriza a versão nova da rede e usa cache só se estiver offline.
+  if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(req).then(res=>{
-        const copy=res.clone();
-        caches.open(CACHE).then(c=>c.put(req,copy));
-        return res;
-      }).catch(()=>caches.match(req))
+      fetch(request)
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
+          return response;
+        })
+        .catch(() => caches.match('./index.html'))
     );
     return;
   }
 
-  event.respondWith(
-    caches.match(req).then(cached=>cached || fetch(req).then(res=>{
-      const copy=res.clone();
-      caches.open(CACHE).then(c=>c.put(req,copy));
-      return res;
-    }))
-  );
+  // Arquivos do próprio app: cache com atualização em segundo plano.
+  if (url.origin === self.location.origin) {
+    event.respondWith(
+      caches.match(request).then(cached => {
+        const network = fetch(request).then(response => {
+          if (response && response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+          }
+          return response;
+        }).catch(() => cached);
+
+        return cached || network;
+      })
+    );
+    return;
+  }
+
+  // Recursos externos (ex.: PDF.js): usa rede normalmente.
+  event.respondWith(fetch(request));
 });

@@ -207,6 +207,14 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .dark .point-ruler-external-v75 .point-ruler-cell{background:var(--card);color:#8ec1ff}
 .dark .row-ruler-cell-v75.active{background:rgba(24,119,242,.22);color:#9bc9ff}
 </style>
+
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#171414">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="./icon-192.png">
+
 </head>
 <body>
 <div class="app" id="appRoot">
@@ -219,7 +227,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   </div>
   <div class="side-bottom">
     <button class="btn secondary" style="width:100%" onclick="toggleDark()">🌙 Aparência</button>
-    <div class="small" style="margin:10px 5px">Tudo fica salvo neste navegador.<br>Versão 7.4 · régua 1:1</div>
+    <div class="small" style="margin:10px 5px">Tudo fica salvo neste navegador.<br>Versão 7.6.7 · FINAL</div>
   </div>
 </aside>
 
@@ -291,6 +299,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 const KEY='meuCrocheApp_v1';
+const HGRID_SCHEMA=5;
 let data; try{data=JSON.parse(localStorage.getItem(KEY)||'{"projects":[],"dark":false}')}catch(e){data={projects:[],dark:false}};
 let currentId=null, timerHandle=null, voiceRecognition=null;
 let pdfPageCache={};
@@ -710,36 +719,65 @@ function findGridLines(canvas){
  const confidence=Math.max(0,Math.min(1,centers.length/(rows+1)));
  return {lines:centers,pitch,rows,confidence,first,last};
 }
-function findGridColumns(canvas){
- const ctx=canvas.getContext('2d',{willReadFrequently:true});
- const w=canvas.width,h=canvas.height;if(w<50||h<50)return null;
- const sx=Math.max(1,Math.floor(w/1400)),sy=Math.max(1,Math.floor(h/1000));
- const data=ctx.getImageData(0,0,w,h).data,scores=[];
- for(let x=0;x<w;x+=sx){
-   let hit=0,samples=0;
-   for(let y=Math.floor(h*.02);y<Math.floor(h*.98);y+=sy*2){
-     const i=(y*w+x)*4,r=data[i],g=data[i+1],b=data[i+2];
-     const spread=Math.max(r,g,b)-Math.min(r,g,b);
-     if(r>=175&&r<=252&&g>=175&&g<=252&&b>=175&&b<=252&&spread<18)hit++;
-     samples++;
-   }
-   scores.push({x,score:samples?hit/samples:0});
- }
- const threshold=Math.max(.60,percentile(scores.map(v=>v.score),78)),groups=[];
- for(const pt of scores){
-   if(pt.score<threshold)continue;const last=groups[groups.length-1];
-   if(last&&pt.x-last[last.length-1].x<=Math.max(3,sx*2))last.push(pt);else groups.push([pt]);
- }
- let centers=groups.filter(g=>g.length<=Math.max(12,Math.ceil(12/sx))).map(g=>g.reduce((best,v)=>v.score>best.score?v:best,g[0]).x).sort((a,b)=>a-b);
- if(centers.length<4)return null;
- const gaps=[];for(let i=1;i<centers.length;i++){const d=centers[i]-centers[i-1];if(d>3)gaps.push(d)}if(!gaps.length)return null;
- const base=percentile(gaps,45),near=gaps.filter(d=>d>=base*.75&&d<=base*1.35),pitch=near.length?near.reduce((a,b)=>a+b,0)/near.length:base;
- if(!isFinite(pitch)||pitch<4)return null;
- let first=centers[0],last=centers[centers.length-1];
- function edgeFit(a,b){const n=(b-a)/pitch;return Math.abs(n-Math.round(n))}
- while(centers.length>4&&edgeFit(first,last)>.22){const dropLast=edgeFit(first,centers[centers.length-2]),dropFirst=edgeFit(centers[1],last);if(dropLast<=dropFirst){centers.pop();last=centers[centers.length-1]}else{centers.shift();first=centers[0]}}
- const columns=Math.max(1,Math.round((last-first)/pitch)),confidence=Math.max(0,Math.min(1,centers.length/(columns+1)));
- return{lines:centers,pitch,columns,confidence,first,last};
+function findGridColumns(canvas, expectedPitch = 0) {
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  const w = canvas.width, h = canvas.height;
+  if (w < 30 || h < 30) return null;
+  const data = ctx.getImageData(0, 0, w, h).data;
+
+  let pitch = Number(expectedPitch) || 0;
+  const scores = new Array(w).fill(0);
+  const yStep = Math.max(1, Math.floor(h / 600));
+
+  for (let x = 1; x < w - 1; x++) {
+    let contrastSum = 0, samples = 0;
+    for (let y = 0; y < h; y += yStep) {
+      const i = (y * w + x) * 4;
+      const il = (y * w + (x - 1)) * 4;
+      const ir = (y * w + (x + 1)) * 4;
+      const lum = (data[i] + data[i + 1] + data[i + 2]) / 3;
+      const lumL = (data[il] + data[il + 1] + data[il + 2]) / 3;
+      const lumR = (data[ir] + data[ir + 1] + data[ir + 2]) / 3;
+      contrastSum += Math.abs((lumL + lumR) / 2 - lum);
+      samples++;
+    }
+    scores[x] = samples ? contrastSum / samples : 0;
+  }
+
+  if (!pitch || pitch < 4) {
+    const raw = [];
+    const threshold = percentile(scores, 85);
+    for (let x = 1; x < w - 1; x++) if (scores[x] >= threshold) raw.push(x);
+    const gaps = [];
+    for (let i = 1; i < raw.length; i++) {
+      const d = raw[i] - raw[i - 1];
+      if (d >= 4) gaps.push(d);
+    }
+    pitch = gaps.length ? median(gaps) : 10;
+  }
+
+  let first = 0, last = w;
+  for (let x = 0; x < w; x++) {
+    if (scores[x] > 2) { first = x; break; }
+  }
+  for (let x = w - 1; x >= 0; x--) {
+    if (scores[x] > 2) { last = x; break; }
+  }
+
+  if (last <= first) { first = 0; last = w; }
+
+  // Bordas grossas podem deslocar a leitura 1–2 px. Se a linha detectada estiver
+  // praticamente na extremidade da imagem, ancora na borda real para eliminar offset.
+  if (first <= pitch * 0.25) first = 0;
+  if ((w - last) <= pitch * 0.25) last = w;
+
+  const columns = Math.max(1, Math.round((last - first) / pitch));
+  const exactPitch = (last - first) / columns;
+
+  const lines = [];
+  for (let i = 0; i <= columns; i++) lines.push(first + i * exactPitch);
+
+  return { lines, pitch: exactPitch, columns, confidence: 1, first, last };
 }
 function percentile(a,p){if(!a.length)return 0;const s=[...a].sort((x,y)=>x-y),i=(s.length-1)*p/100;const lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?s[lo]:s[lo]+(s[hi]-s[lo])*(i-lo)}
 function median(a){const n=a.length,s=[...a].sort((x,y)=>x-y);return n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2}
@@ -857,6 +895,17 @@ function normalizeProject(p){
   if(!Number.isFinite(Number(p.detectedPoints))||Number(p.detectedPoints)<0)p.detectedPoints=0;
   if(!p.rowPointRanges||typeof p.rowPointRanges!=='object'||Array.isArray(p.rowPointRanges))p.rowPointRanges={};
   if(p.pointDirection!=='right-to-left'&&p.pointDirection!=='left-to-right')p.pointDirection='left-to-right';
+
+  // V7.6.6: invalida SOMENTE geometria horizontal antiga.
+  // Isso evita projetos salvos continuarem usando offsets/contagens das tentativas anteriores.
+  if(Number(p.horizontalGridSchema)!==HGRID_SCHEMA){
+    p.horizontalGridSchema=HGRID_SCHEMA;
+    p.detectedPoints=0;
+    p.gridLeft=null; p.gridRight=null; p.gridPitchX=null; p.gridSourceWidth=null;
+    p.gridColumnLines=[]; p.foundX=null;
+    p.rowPointRanges={};
+    p.activePoint=1;
+  }
   return p;
 }
 
@@ -952,50 +1001,47 @@ function getVisualRowIndex(p,row){
 function getPointDirection(p){
  return p?.pointDirection==='right-to-left'?'right-to-left':'left-to-right';
 }
+function getEffectivePointDirection(p,row){
+ // O seletor define de qual lado a CARREIRA 1 começa. As seguintes alternam ida/volta.
+ const base=getPointDirection(p);
+ row=Math.max(1,Math.round(Number(row)||1));
+ if(row%2===1)return base;
+ return base==='right-to-left'?'left-to-right':'right-to-left';
+}
 function setPointDirection(dir){
  const p=project();if(!p)return;
  p.pointDirection=dir==='right-to-left'?'right-to-left':'left-to-right';
- // A direção muda apenas a leitura/numeração. A matriz detectada permanece intacta.
  p.activePoint=1;
  save();refreshPointCounter();positionActivePoint();renderPointRuler();
- toast(p.pointDirection==='right-to-left'?'Pontos: direita → esquerda':'Pontos: esquerda → direita');
+ toast(p.pointDirection==='right-to-left'?'Carreira 1: direita → esquerda; seguintes alternam':'Carreira 1: esquerda → direita; seguintes alternam');
 }
 function getRowPointInfo(p,row){
  if(!p)return{left:0,right:0,pitch:0,total:0,firstCol:0,lastCol:-1};
  const visualIndex=getVisualRowIndex(p,row);
- const r=p.rowPointRanges?.[String(visualIndex)];
- if(r&&Number(r.total)>0&&Number.isFinite(Number(r.pitch))&&Number(r.pitch)>0&&Number.isFinite(Number(r.left))){
-   const pitch=Number(r.pitch),total=Math.max(1,Math.round(Number(r.total)));
-   const left=Number(r.left),right=Number.isFinite(Number(r.right))?Number(r.right):(left+total*pitch);
-   return{left,right,pitch,total,visualIndex,firstCol:Number(r.firstCol)||0,lastCol:Number.isFinite(Number(r.lastCol))?Number(r.lastCol):(Number(r.firstCol)||0)+total-1};
+ const left=Number(p.gridLeft),right=Number(p.gridRight),total=Math.max(0,Math.round(Number(p.detectedPoints)||0));
+ if(Number(p.horizontalGridSchema)===HGRID_SCHEMA && Number.isFinite(left) && Number.isFinite(right) && right>left && total>0){
+   const pitch=(right-left)/total;
+   return{left,right,pitch,total,visualIndex,firstCol:0,lastCol:total-1,gridBased:true};
  }
- // Fallback global somente quando ainda não há faixa específica para a carreira.
- const left=Number(p.gridLeft)||0,right=Number(p.gridRight)||0,pitch=Number(p.gridPitchX)||0,total=Math.max(0,Number(p.detectedPoints)||0);
- return{left,right,pitch,total,visualIndex,firstCol:0,lastCol:Math.max(-1,total-1)};
+ return{left:0,right:0,pitch:0,total:0,visualIndex,firstCol:0,lastCol:-1};
+}
+function getActivePointCoordinates(p,row=p.row,point=p.activePoint){
+ if(!p)return null;
+ const info=getRowPointInfo(p,row),total=Math.max(0,Number(info.total)||0);
+ if(!total||!Number.isFinite(Number(info.pitch))||Number(info.pitch)<=0)return null;
+ point=Math.max(1,Math.min(total,Math.round(Number(point)||1)));
+ const dir=getEffectivePointDirection(p,row);
+ const pointIndex=dir==='right-to-left'?(total-point):(point-1);
+ const sourceLeft=Number(info.left)+pointIndex*Number(info.pitch);
+ const sourceCenter=sourceLeft+Number(info.pitch)/2;
+ return{x:sourceCenter,left:sourceLeft,pitch:Number(info.pitch),total,pointIndex,direction:dir};
 }
 function getPointGeometry(p,point,row=p.row){
  const m=getDisplayMetrics(p);if(!m)return null;
- const total=getCurrentRowPointTotal(p);
- if(!total)return null;
-
- point=Math.max(1,Math.min(total,Math.round(Number(point)||1)));
-
- // V7.6.1 — ajuste exclusivamente horizontal.
- // Equivalente à lógica de atualizarInterface() fornecida pelo usuário:
- // largura visível ÷ total de pontos da carreira atual.
- // Nenhum cálculo vertical, detecção de carreira ou marcação concluída é alterado.
- const cellWidth=m.displayW/total;
- const cellIndex=getPointDirection(p)==='right-to-left'?(total-point):(point-1);
- const left=cellIndex*cellWidth;
-
- return{
-   left,
-   width:Math.max(1,cellWidth),
-   sourceLeft:(left/m.displayW)*(Number(p.gridSourceWidth)||m.sourceW),
-   sourceWidth:(cellWidth/m.displayW)*(Number(p.gridSourceWidth)||m.sourceW),
-   total,
-   cellIndex
- };
+ const c=getActivePointCoordinates(p,row,point);if(!c)return null;
+ const sourceW=Number(p.gridSourceWidth)||m.sourceW||1;
+ const sx=m.displayW/sourceW;
+ return{left:c.left*sx,width:Math.max(1,c.pitch*sx),sourceLeft:c.left,sourceWidth:c.pitch,total:c.total,cellIndex:c.pointIndex,direction:c.direction};
 }
 function getCurrentRowPointTotal(p){
  if(!p||Number(p.row)<1)return 0;
@@ -1148,32 +1194,26 @@ function cellHasUsefulContent(data,w,h,left,top,pitchX,pitchY){
  // Uma célula preenchida/símbolo preto ocupa uma parcela relevante do interior.
  return samples>0 && dark/samples>=.10;
 }
-function detectPointRangesByRow(canvas,foundRows,foundX){
- if(!canvas||!foundRows||!foundX)return{};
- const ctx=canvas.getContext('2d',{willReadFrequently:true}),w=canvas.width,h=canvas.height;
- const data=ctx.getImageData(0,0,w,h).data;
- const rows=Math.max(1,foundRows.rows),pitchY=Number(foundRows.pitch),pitchX=Number(foundX.pitch);
- const globalCols=Math.max(1,Math.round(Number(foundX.columns))),ranges={};
- for(let visual=1;visual<=rows;visual++){
-   const rowTop=Number(foundRows.first)+(visual-1)*pitchY;
-   const occupied=[];
-   for(let col=0;col<globalCols;col++){
-     const cellLeft=Number(foundX.first)+col*pitchX;
-     if(cellHasUsefulContent(data,w,h,cellLeft,rowTop,pitchX,pitchY))occupied.push(col);
-   }
-   if(occupied.length){
-     const firstCol=occupied[0],lastCol=occupied[occupied.length-1],total=lastCol-firstCol+1;
-     ranges[String(visual)]={
-       left:Number(foundX.first)+firstCol*pitchX,
-       right:Number(foundX.first)+(lastCol+1)*pitchX,
-       pitch:pitchX,total,firstCol,lastCol,occupiedCount:occupied.length
-     };
-   }else{
-     // Linha sem conteúdo preto detectável: não inventa pontos. Isso evita P1 fora da área útil.
-     ranges[String(visual)]={left:0,right:0,pitch:pitchX,total:0,firstCol:0,lastCol:-1,occupiedCount:0};
-   }
- }
- return ranges;
+function detectPointRangesByRow(canvas, foundRows, foundX) {
+  if (!foundRows || !foundX) return {};
+  const rows = Math.max(1, Number(foundRows.rows) || 1);
+  const total = Math.max(1, Math.round(Number(foundX.columns) || 1));
+  const pitch = Number(foundX.pitch) || 0;
+  const left = Number(foundX.first) || 0;
+  const right = Number(foundX.last) || (left + total * pitch);
+  const ranges = {};
+  for (let visual = 1; visual <= rows; visual++) {
+    ranges[String(visual)] = {
+      left,
+      right,
+      pitch,
+      total,
+      firstCol: 0,
+      lastCol: total - 1,
+      gridBased: true
+    };
+  }
+  return ranges;
 }
 
 function applyDetection(p,found,sourceH,foundX=null,sourceW=0,rowRanges=null){
@@ -1188,6 +1228,8 @@ function applyDetection(p,found,sourceH,foundX=null,sourceW=0,rowRanges=null){
    p.detectedPoints=foundX.columns;
    p.gridLeft=foundX.first;p.gridRight=foundX.last;p.gridPitchX=foundX.pitch;
    p.gridSourceWidth=sourceW;p.gridColumnLines=Array.isArray(foundX.lines)?foundX.lines.slice():[];
+   p.foundX={first:foundX.first,last:foundX.last,pitch:foundX.pitch,columns:foundX.columns,lines:Array.isArray(foundX.lines)?foundX.lines.slice():[]};
+   p.horizontalGridSchema=HGRID_SCHEMA;
    p.rowPointRanges=rowRanges&&typeof rowRanges==='object'?rowRanges:{};
    p.activePoint=1;clampActivePoint(p);
  }
@@ -1210,10 +1252,10 @@ async function detectPatternRows(){
    }
    if(!canvas)throw new Error('Canvas não encontrado');
    const found=findGridLines(canvas);if(!found)throw new Error('Grade horizontal não identificada');
-   const foundX=findGridColumns(canvas);
+   const foundX=findGridColumns(canvas,found.pitch);
    const rowRanges=foundX?detectPointRangesByRow(canvas,found,foundX):{};
    applyDetection(p,found,canvas.height,foundX,canvas.width,rowRanges);rerenderPreserveViewer();
-   toast(foundX?`Detectadas ${found.rows} carreiras; limites de pontos analisados carreira por carreira`:`Detectadas ${found.rows} carreiras; pontos horizontais não identificados`);
+   toast(foundX?`Detectadas ${found.rows} carreiras; malha horizontal recalibrada e cache antigo descartado`:`Detectadas ${found.rows} carreiras; pontos horizontais não identificados`);
  }catch(e){console.error(e);toast('Não consegui detectar automaticamente. Você pode informar o total de carreiras manualmente.')}
 }
 async function detectPdfRows(){return detectPatternRows()}
@@ -1342,5 +1384,16 @@ window.addEventListener('beforeunload',()=>{const p=project();if(p&&p.running){a
 renderProjects();
 applySidebarState();
 </script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+      .then(reg => reg.update())
+      .catch(err => console.warn('Service Worker:', err));
+  });
+}
+</script>
+
 </body>
 </html>
